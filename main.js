@@ -18,14 +18,13 @@ const page = await browser.newPage()
 
 // Navigate to the "sections" page of the series and collect some data.
 const sectionsData = await genSectionsData({page, dir: seriesFolder})
-console.timeEnd('Initial sections data created.')
+console.timeEnd('Initial sections data created')
 
 // Navigate to each section and grab podcast data.
-console.time('Podcast data added to sections data.')
+console.time('Podcast data added to sections data')
 await genPodcastsData({page, sectionsData})
-console.timeEnd('Podcast data added to sections data.')
+console.timeEnd('Podcast data added to sections data')
 
 // For each podcast episode, download the final data.
-console.log('Beggining to download all data...')
 await downloadPodcastData({page, sectionsData})
 process.exit()

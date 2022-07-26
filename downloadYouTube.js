@@ -6,20 +6,17 @@ export default async function downloadYouTube({url, dir, fileName}) {
     // Ensure the target directory exists.
     fs.ensureDirSync(dir)
     const writableStream = fs.createWriteStream(`${dir}/${fileName}`)
-    console.log('----')
-    console.log('YouTube video url:', url)
-    console.log('----')
 
     try {
       ytdl(url, {quality: 'highest'})
         .pipe(writableStream)
         .on('finish', () => {
           writableStream.close()
-          console.log('YouTube downloaded:', fileName)
+          console.log('File downloaded:', fileName)
           resolve()
         })
         .on('error', err => {
-          console.error('YouTube download failed:', url)
+          console.error('File download failed:', url)
           reject(err)
         })
     } catch (e) {

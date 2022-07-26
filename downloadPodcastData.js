@@ -1,5 +1,6 @@
 import downloadFile from './downloadFile.js'
 import downloadYouTube from './downloadYouTube.js'
+import filenamify from 'filenamify'
 
 export default async function downloadPodcastData({page, sectionsData}) {
   for (let i = 0; i < sectionsData.length; i++) {
@@ -16,7 +17,6 @@ export default async function downloadPodcastData({page, sectionsData}) {
           3. YouTube video file
       */
       console.log('----')
-      console.time('Generating urls to download for podcast')
       const [mp3Url, pdfUrl, youTubeUrl] = await Promise.all([
         // MP3
         page.$eval('a.download-btn.icon-download', node => node.href),
@@ -34,15 +34,19 @@ export default async function downloadPodcastData({page, sectionsData}) {
           return `https://www.youtube.com/watch?v=${id}`
         }),
       ])
-      console.timeEnd('Generating urls to download for podcast')
 
       console.time('Downloaded data for episode.')
       await Promise.all([
-        downloadFile({dir, fileName: `${name}.mp3`, url: mp3Url}),
-        downloadFile({dir, fileName: `${name}.pdf`, url: pdfUrl}),
-        downloadYouTube({dir, fileName: `${name}.mp4`, url: youTubeUrl}),
+        downloadFile({dir, fileName: namey(name, 'mp3'), url: mp3Url}),
+        downloadFile({dir, fileName: namey(name, 'pdf'), url: pdfUrl}),
+        downloadYouTube({dir, fileName: namey(name, 'mp4'), url: youTubeUrl}),
       ])
       console.timeEnd('Downloaded data for episode.')
     }
   }
+}
+
+function namey(fileName, extension) {
+  const name = filenamify(fileName)
+  return `${name}.${extension}`
 }
