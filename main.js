@@ -12,7 +12,7 @@ dotenv.config()
 const seriesFolder = path.resolve(`./${process.env.MAIN_DOWNLOAD_FOLDER_NAME}`)
 fs.ensureDirSync(seriesFolder)
 
-console.time('Initial sections data created.')
+console.time('Initial sections data created')
 const browser = await puppeteer.launch()
 const page = await browser.newPage()
 
