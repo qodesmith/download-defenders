@@ -3,7 +3,15 @@ import https from 'https'
 import fs from 'fs-extra'
 
 export default async function downloadFile({url, dir, fileName}) {
+  if (!url) return
+
   const fetcher = url.startsWith('http://') ? http : https
+  const fullFilePath = `${dir}/${fileName}`
+
+  if (fs.existsSync(fullFilePath)) {
+    console.log('File already exists:', fileName)
+    return
+  }
 
   return new Promise((resolve, reject) => {
     try {
@@ -20,11 +28,11 @@ export default async function downloadFile({url, dir, fileName}) {
         fs.ensureDirSync(dir)
 
         // Create the stream and pipe data to the file.
-        const filePath = fs.createWriteStream(`${dir}/${fileName}`)
-        res.pipe(filePath)
-        filePath
+        const fileStream = fs.createWriteStream(fullFilePath)
+        res.pipe(fileStream)
+        fileStream
           .on('finish', () => {
-            filePath.close()
+            fileStream.close()
             console.log('File downloaded:', fileName)
             resolve()
           })

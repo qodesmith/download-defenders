@@ -15,23 +15,25 @@ export default async function downloadPodcastData({page, sectionsData}) {
           1. mp3 file
           2. Transcript
           3. YouTube video file
+        
+          If for some reason one of the 3 isn't available, return undefined.
       */
       console.log('----')
       const [mp3Url, pdfUrl, youTubeUrl] = await Promise.all([
         // MP3
-        page.$eval('a.download-btn.icon-download', node => node.href),
+        page.$eval('a.download-btn.icon-download', node => node?.href),
 
         // Transcript
-        page.$eval('a.download-btn.icon-transcript', node => node.href),
+        page.$eval('a.download-btn.icon-transcript', node => node?.href),
 
         // YouTube
         // There are multiple iframes on the page. I suspect this is Chromium.
-        page.$$eval('iframe', nodes => {
-          const urls = nodes.map(node => node.src)
+        page.$$eval('iframe', iframes => {
+          const urls = iframes.map(iframe => iframe.src)
           const src = urls.find(url => url.startsWith('https://www.youtube'))
-          const id = src.split('/').pop()
+          const id = src?.split('/').pop()
 
-          return `https://www.youtube.com/watch?v=${id}`
+          return id ? `https://www.youtube.com/watch?v=${id}` : undefined
         }),
       ])
 
