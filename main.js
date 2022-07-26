@@ -25,6 +25,8 @@ console.time('Podcast data added to sections data')
 await genPodcastsData({page, sectionsData})
 console.timeEnd('Podcast data added to sections data')
 
+console.log(JSON.stringify(sectionsData, null, 2))
+
 // For each podcast episode, download the final data.
 await downloadPodcastData({page, sectionsData})
 process.exit()
