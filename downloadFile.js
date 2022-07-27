@@ -8,11 +8,6 @@ export default async function downloadFile({url, dir, fileName}) {
   const fetcher = url.startsWith('http://') ? http : https
   const fullFilePath = `${dir}/${fileName}`
 
-  if (fs.existsSync(fullFilePath)) {
-    console.log('File already exists:', fileName)
-    return
-  }
-
   return new Promise((resolve, reject) => {
     try {
       const options = {
@@ -33,7 +28,6 @@ export default async function downloadFile({url, dir, fileName}) {
         fileStream
           .on('finish', () => {
             fileStream.close()
-            console.log('File downloaded:', fileName)
             resolve()
           })
           .on('error', err => {

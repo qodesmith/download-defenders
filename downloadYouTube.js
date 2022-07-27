@@ -6,11 +6,6 @@ export default async function downloadYouTube({url, dir, fileName}) {
 
   const fullFilePath = `${dir}/${fileName}`
 
-  if (fs.existsSync(fullFilePath)) {
-    console.log('File already exists:', fileName)
-    return
-  }
-
   return new Promise((resolve, reject) => {
     // Ensure the target directory exists.
     fs.ensureDirSync(dir)
@@ -21,7 +16,6 @@ export default async function downloadYouTube({url, dir, fileName}) {
         .pipe(writableStream)
         .on('finish', () => {
           writableStream.close()
-          console.log('File downloaded:', fileName)
           resolve()
         })
         .on('error', err => {

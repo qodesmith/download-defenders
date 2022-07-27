@@ -1,6 +1,21 @@
+import chalk from 'chalk'
+
 export default async function genPodcastsData({page, sectionsData}) {
   for (let i = 0; i < sectionsData.length; i++) {
     const section = sectionsData[i]
+
+    if (section.shouldSkip) {
+      console.log(
+        chalk.gray.bold(`Skipping section ${i + 1} of ${sectionsData.length}:`),
+        chalk.gray(section.folderName)
+      )
+      continue
+    } else {
+      console.log(
+        chalk.cyan.bold(`Fetching section ${i + 1} of ${sectionsData.length}:`),
+        section.folderName
+      )
+    }
 
     await page.goto(section.url)
     let paginationPages = [section.url]
@@ -20,7 +35,12 @@ export default async function genPodcastsData({page, sectionsData}) {
 
     for (let j = 0; j < paginationPages.length; j++) {
       const sectionUrl = paginationPages[j]
-      await page.goto(sectionUrl)
+
+      // We've already navigated to the 1st section page above.
+      if (j !== 0) {
+        await page.goto(sectionUrl)
+      }
+
       const podcasts = await page.$$('.single-question-details')
 
       if (podcasts.length === 0) {

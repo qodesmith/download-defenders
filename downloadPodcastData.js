@@ -1,16 +1,31 @@
 import downloadFile from './downloadFile.js'
 import downloadYouTube from './downloadYouTube.js'
 import filenamify from 'filenamify'
-import fs from 'fs-extra'
+import chalk from 'chalk'
 
 function namey(fileName, extension) {
   const name = filenamify(fileName)
-  return `${name}.${extension}`
+  return extension ? `${name}.${extension}` : name
 }
 
 export default async function downloadPodcastData({page, sectionsData}) {
   for (let i = 0; i < sectionsData.length; i++) {
-    const {dir, podcasts} = sectionsData[i]
+    const {dir, podcasts, shouldSkip, folderName} = sectionsData[i]
+
+    if (shouldSkip) {
+      console.log(
+        chalk.gray.bold('Section exists (skipping):'),
+        chalk.gray(folderName)
+      )
+      continue
+    } else {
+      console.log(
+        chalk.cyan.bold(
+          `Downloading section: ${i + 1} of ${sectionsData.length}`
+        ),
+        folderName
+      )
+    }
 
     for (let j = 0; j < podcasts.length; j++) {
       const {url, name} = podcasts[j]
@@ -19,14 +34,16 @@ export default async function downloadPodcastData({page, sectionsData}) {
           return namey(name, extension)
         }
       )
-      const fullyDownloaded = [mp3FileName, pdfFileName, mp4FileName].every(
-        fullFilePath => {
-          return fs.existsSync(fullFilePath)
-        }
-      )
 
-      if (fullyDownloaded) continue
       await page.goto(url)
+
+      // https://stackoverflow.com/questions/32938213/is-there-a-way-to-erase-the-last-line-of-output
+      // Clear each time except the first iteration.
+      if (j !== 0) {
+        process.stdout.moveCursor(0, -1) // up one line
+        process.stdout.clearLine(1) // from cursor to end
+      }
+      console.log(chalk.cyan(`${j + 1}/${podcasts.length}`), chalk.gray(name))
 
       /*
         There are 3 things we want from each podcast episode page:
@@ -36,13 +53,16 @@ export default async function downloadPodcastData({page, sectionsData}) {
         
           If for some reason one of the 3 isn't available, return undefined.
       */
-      console.log('----')
       const [mp3Url, pdfUrl, youTubeUrl] = await Promise.all([
         // MP3
-        page.$eval('a.download-btn.icon-download', async node => node?.href),
+        page.$$eval('a.download-btn.icon-download', async nodes => {
+          return nodes[0]?.href
+        }),
 
         // Transcript
-        page.$eval('a.download-btn.icon-transcript', async node => node?.href),
+        page.$$eval('a.download-btn.icon-transcript', async nodes => {
+          return nodes[0]?.href
+        }),
 
         // YouTube
         // There are multiple iframes on the page. I suspect this is Chromium.
@@ -55,13 +75,11 @@ export default async function downloadPodcastData({page, sectionsData}) {
         }),
       ])
 
-      console.time('Downloaded data for episode.')
       await Promise.all([
         downloadFile({dir, fileName: mp3FileName, url: mp3Url}),
         downloadFile({dir, fileName: pdfFileName, url: pdfUrl}),
         downloadYouTube({dir, fileName: mp4FileName, url: youTubeUrl}),
       ])
-      console.timeEnd('Downloaded data for episode.')
     }
   }
 }
