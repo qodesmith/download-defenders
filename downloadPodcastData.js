@@ -21,7 +21,7 @@ export default async function downloadPodcastData({page, sectionsData}) {
     } else {
       console.log(
         chalk.cyan.bold(
-          `Downloading section: ${i + 1} of ${sectionsData.length}`
+          `Downloading section ${i + 1} of ${sectionsData.length}:`
         ),
         folderName
       )
