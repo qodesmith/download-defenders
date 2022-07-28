@@ -2,6 +2,7 @@ import downloadFile from './downloadFile.js'
 import downloadYouTube from './downloadYouTube.js'
 import filenamify from 'filenamify'
 import chalk from 'chalk'
+import fs from 'fs-extra'
 
 function namey(fileName, extension) {
   const name = filenamify(fileName)
@@ -34,6 +35,15 @@ export default async function downloadPodcastData({page, sectionsData}) {
           return namey(name, extension)
         }
       )
+      const hasFileObj = {
+        mp3FileName: fs.existsSync(`${dir}/${mp3FileName}`),
+        pdfFileName: fs.existsSync(`${dir}/${pdfFileName}`),
+        mp4FileName: fs.existsSync(`${dir}/${mp4FileName}`),
+      }
+      const hasAllFiles = Object.values(hasFileObj).every(val => val)
+
+      // Skip navigating to the page altogether if we already have all 3 files.
+      if (hasAllFiles) continue
 
       await page.goto(url)
 
@@ -54,6 +64,20 @@ export default async function downloadPodcastData({page, sectionsData}) {
           If for some reason one of the 3 isn't available, return undefined.
       */
       const [mp3Url, pdfUrl, youTubeUrl] = await Promise.all([
+        /*
+          $$eval > $eval
+
+          The issue with $eval (singular $) is that it throws an error if the
+          element isn't found. I tried abstracting it away in a helper function
+          with a try/catch, but the error seems to be thrown on the Chromium
+          window that is open, not here in this Node process. Basically, the
+          try/catch wasn't preventing the Node process from stopping.
+
+          I tried using page.evaluate, but it wouldn't let me pass in a function
+          as one of the arguments to the callback. I was tired of fighting with
+          Pupeteer, so $$eval for the win.
+        */
+
         // MP3
         page.$$eval('a.download-btn.icon-download', async nodes => {
           return nodes[0]?.href
@@ -75,11 +99,24 @@ export default async function downloadPodcastData({page, sectionsData}) {
         }),
       ])
 
-      await Promise.all([
-        downloadFile({dir, fileName: mp3FileName, url: mp3Url}),
-        downloadFile({dir, fileName: pdfFileName, url: pdfUrl}),
-        downloadYouTube({dir, fileName: mp4FileName, url: youTubeUrl}),
-      ])
+      await Promise.allSettled([
+        !hasFileObj[mp3FileName] &&
+          downloadFile({dir, fileName: mp3FileName, url: mp3Url}),
+        !hasFileObj[pdfFileName] &&
+          downloadFile({dir, fileName: pdfFileName, url: pdfUrl}),
+        !hasFileObj[mp4FileName] &&
+          downloadYouTube({dir, fileName: mp4FileName, url: youTubeUrl}),
+      ]).then(([mp3Status, pdfStatus, mp4Status]) => {
+        if (mp3Status.status === 'rejected') {
+          console.log(chalk.red(`Failed to download file:`, mp3FileName))
+        }
+        if (pdfStatus.status === 'rejected') {
+          console.log(chalk.red(`Failed to download file:`, pdfFileName))
+        }
+        if (mp4Status.status === 'rejected') {
+          console.log(chalk.red(`Failed to download file:`, mp4FileName))
+        }
+      })
     }
   }
 }
