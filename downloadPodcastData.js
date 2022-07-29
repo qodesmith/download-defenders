@@ -3,7 +3,6 @@ import downloadYouTube from './downloadYouTube.js'
 import filenamify from 'filenamify'
 import chalk from 'chalk'
 import fs from 'fs-extra'
-import {resourceLimits} from 'worker_threads'
 
 function namey(fileName, extension) {
   const name = filenamify(fileName)
@@ -31,6 +30,9 @@ export default async function downloadPodcastData({page, sectionsData}) {
       )
     }
 
+    // A way to keep track if we've logged progress to the CLI.
+    const hasLogged = {value: false}
+
     for (let j = 0; j < podcasts.length; j++) {
       const {url, name} = podcasts[j]
 
@@ -50,7 +52,20 @@ export default async function downloadPodcastData({page, sectionsData}) {
       })
 
       // Skip navigating to the page altogether if we already have all 3 files.
-      if (mp3FileExists && pdfFileExists && mp4FileExists) continue
+      if (mp3FileExists && pdfFileExists && mp4FileExists) {
+        // Clear progress logs in prep for the next section.
+        if (hasLogged.value) {
+          hasLogged.value = false
+
+          await new Promise(resolve => {
+            process.stdout.moveCursor(0, -2, () => {
+              process.stdout.clearScreenDown(resolve)
+            })
+          })
+        }
+
+        continue
+      }
 
       await page.goto(url)
 
@@ -99,13 +114,14 @@ export default async function downloadPodcastData({page, sectionsData}) {
       ])
 
       const promiseBools = []
-      const promiseCb = i => () => {
+      const promiseCb = i => async () => {
         promiseBools[i] = true
-        logProgress({
+        return logProgress({
           promiseBools,
           current: j + 1,
           total: podcasts.length,
           name,
+          hasLogged,
         })
       }
       const promises = [
@@ -126,7 +142,10 @@ export default async function downloadPodcastData({page, sectionsData}) {
           ),
       ]
 
-      // Massage the promiseBools array for the 1st logging attempt below.
+      /*
+        Populate the promiseBools array for subsequent logProgress calls (even
+        the calls in promiseCb).
+      */
       promises.forEach((item, i) => {
         if (item instanceof Promise) {
           // Indicates an incomplete download in progress.
@@ -137,15 +156,22 @@ export default async function downloadPodcastData({page, sectionsData}) {
         }
       })
 
-      logProgress({promiseBools, current: j + 1, total: podcasts.length, name})
+      await logProgress({
+        promiseBools,
+        current: j + 1,
+        total: podcasts.length,
+        name,
+        hasLogged,
+      })
 
-      await Promise.all(promises).then(() =>
+      await Promise.all(promises).then(() => {
+        // Ensure no files are 0 bytes.
         checkSizes({
           dir,
           fileNames: [mp3FileName, pdfFileName, mp4FileName],
           filesExisting: [mp3FileExists, pdfFileExists, mp4FileExists],
         })
-      )
+      })
     }
   }
 }
@@ -159,7 +185,7 @@ export default async function downloadPodcastData({page, sectionsData}) {
     * Total iterations
     * Podcast name
 */
-function logProgress({promiseBools, current, total, name}) {
+async function logProgress({promiseBools, current, total, name, hasLogged}) {
   const openBracket = chalk.cyan.bold('[')
   const closedBracket = chalk.cyan.bold(']')
   const comma = chalk.cyan(',')
@@ -175,19 +201,29 @@ function logProgress({promiseBools, current, total, name}) {
     .filter(Boolean)
     .join(comma)
 
-  // https://stackoverflow.com/questions/32938213/is-there-a-way-to-erase-the-last-line-of-output
-  // Clear each time except the first iteration.
-  if (current !== 1) {
-    process.stdout.moveCursor(0, -2) // Up 2 lines
-    process.stdout.clearScreenDown()
-  }
+  return new Promise(resolve => {
+    function logColorfulData() {
+      console.log(`${openBracket}${blocks}${closedBracket}`)
+      console.log(
+        chalk.cyan(`${current}/${total}`),
+        `${openBracket}${fileTypes}${closedBracket}`,
+        chalk.gray(name)
+      )
+      hasLogged.value = true
+      resolve()
+    }
 
-  console.log(`${openBracket}${blocks}${closedBracket}`)
-  console.log(
-    chalk.cyan(`${current}/${total}`),
-    `${openBracket}${fileTypes}${closedBracket}`,
-    chalk.gray(name)
-  )
+    // https://stackoverflow.com/questions/32938213/is-there-a-way-to-erase-the-last-line-of-output
+    // Clear each time so long as we previously logged to the CLI.
+    if (hasLogged.value) {
+      // Move the cursor up 2 lines, then clear from there down.
+      process.stdout.moveCursor(0, -2, () => {
+        process.stdout.clearScreenDown(logColorfulData)
+      })
+    } else {
+      logColorfulData()
+    }
+  })
 }
 
 function checkSizes({dir, fileNames, filesExisting}) {
