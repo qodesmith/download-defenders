@@ -140,7 +140,11 @@ export default async function downloadPodcastData({page, sectionsData}) {
       logProgress({promiseBools, current: j + 1, total: podcasts.length, name})
 
       await Promise.all(promises).then(() =>
-        checkSizes({dir, fileNames: [mp3FileName, pdfFileName, mp4FileName]})
+        checkSizes({
+          dir,
+          fileNames: [mp3FileName, pdfFileName, mp4FileName],
+          filesExisting: [mp3FileExists, pdfFileExists, mp4FileExists],
+        })
       )
     }
   }
@@ -186,13 +190,15 @@ function logProgress({promiseBools, current, total, name}) {
   )
 }
 
-function checkSizes({dir, fileNames}) {
-  fileNames.forEach(name => {
-    const fullPath = `${dir}/${name}`
-    const fileSize = fs.statSync(fullPath).size
+function checkSizes({dir, fileNames, filesExisting}) {
+  fileNames.forEach((name, i) => {
+    if (filesExisting[i]) {
+      const fullPath = `${dir}/${name}`
+      const fileSize = fs.statSync(fullPath).size
 
-    if (fileSize === 0) {
-      throw new Error(`0 byte file size: ${name}`)
+      if (fileSize === 0) {
+        throw new Error(`0 byte file size: ${name}`)
+      }
     }
   })
 }
