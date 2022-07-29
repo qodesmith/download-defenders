@@ -12,8 +12,18 @@ function namey(fileName, extension) {
 export default async function downloadPodcastData({page, sectionsData}) {
   const sectionDataLength = sectionsData.length
 
+  // A way to keep track if we've logged progress to the CLI.
+  const hasLogged = {value: false}
+
   for (let i = 0; i < sectionDataLength; i++) {
     const {dir, podcasts, shouldSkip, folderName} = sectionsData[i]
+    const podcastsLength = podcasts.length
+
+    // Clear progress logs before starting the next section..
+    if (hasLogged.value) {
+      hasLogged.value = false
+      await clearColorfulLogs()
+    }
 
     if (shouldSkip) {
       console.log(
@@ -30,18 +40,15 @@ export default async function downloadPodcastData({page, sectionsData}) {
       )
     }
 
-    // A way to keep track if we've logged progress to the CLI.
-    const hasLogged = {value: false}
-
-    for (let j = 0; j < podcasts.length; j++) {
+    for (let j = 0; j < podcastsLength; j++) {
       const {url, name} = podcasts[j]
 
-      // We'll look to download 3 files for each podcast. Create those names.
+      // Create the names of the files to be downloaded.
       const [mp3FileName, pdfFileName, mp4FileName] = ['mp3', 'pdf', 'mp4'].map(
         extension => namey(name, extension)
       )
 
-      // If the file exists AND it has a size we'll want to skip downloading it.
+      // Check if files exist and have a byte-length.
       const [mp3FileExists, pdfFileExists, mp4FileExists] = [
         mp3FileName,
         pdfFileName,
@@ -52,20 +59,7 @@ export default async function downloadPodcastData({page, sectionsData}) {
       })
 
       // Skip navigating to the page altogether if we already have all 3 files.
-      if (mp3FileExists && pdfFileExists && mp4FileExists) {
-        // Clear progress logs in prep for the next section.
-        if (hasLogged.value) {
-          hasLogged.value = false
-
-          await new Promise(resolve => {
-            process.stdout.moveCursor(0, -2, () => {
-              process.stdout.clearScreenDown(resolve)
-            })
-          })
-        }
-
-        continue
-      }
+      if (mp3FileExists && pdfFileExists && mp4FileExists) continue
 
       await page.goto(url)
 
@@ -114,12 +108,14 @@ export default async function downloadPodcastData({page, sectionsData}) {
       ])
 
       const promiseBools = []
+
+      // After each promise resolves, update the progress by logging in the CLI.
       const promiseCb = i => async () => {
         promiseBools[i] = true
         return logProgress({
           promiseBools,
           current: j + 1,
-          total: podcasts.length,
+          total: podcastsLength,
           name,
           hasLogged,
         })
@@ -143,6 +139,14 @@ export default async function downloadPodcastData({page, sectionsData}) {
       ]
 
       /*
+        Check again if we actually need to download files. The check above
+        `page.goto` isn't aware of how many files the podcast offers. It's only
+        after we've navigated to the page that we know. This check will
+        determine if we actually have any files we need to download.
+      */
+      if (promises.filter(Boolean).length === 0) continue
+
+      /*
         Populate the promiseBools array for subsequent logProgress calls (even
         the calls in promiseCb).
       */
@@ -156,10 +160,11 @@ export default async function downloadPodcastData({page, sectionsData}) {
         }
       })
 
+      // The first CLI log to kick off the visuals.
       await logProgress({
         promiseBools,
         current: j + 1,
-        total: podcasts.length,
+        total: podcastsLength,
         name,
         hasLogged,
       })
@@ -174,6 +179,15 @@ export default async function downloadPodcastData({page, sectionsData}) {
       })
     }
   }
+}
+
+async function clearColorfulLogs() {
+  return new Promise(resolve => {
+    // Move the cursor up 2 lines, then clear from there down.
+    process.stdout.moveCursor(0, -2, () => {
+      process.stdout.clearScreenDown(resolve)
+    })
+  })
 }
 
 /*
@@ -210,18 +224,18 @@ async function logProgress({promiseBools, current, total, name, hasLogged}) {
         chalk.gray(name)
       )
       hasLogged.value = true
-      resolve()
     }
 
     // https://stackoverflow.com/questions/32938213/is-there-a-way-to-erase-the-last-line-of-output
     // Clear each time so long as we previously logged to the CLI.
     if (hasLogged.value) {
-      // Move the cursor up 2 lines, then clear from there down.
-      process.stdout.moveCursor(0, -2, () => {
-        process.stdout.clearScreenDown(logColorfulData)
+      clearColorfulLogs().then(() => {
+        logColorfulData()
+        resolve()
       })
     } else {
       logColorfulData()
+      resolve()
     }
   })
 }
@@ -238,3 +252,9 @@ function checkSizes({dir, fileNames, filesExisting}) {
     }
   })
 }
+
+/*
+  When do we want to clear logs?
+    * When logging - if we've previously logged, clear those logs.
+    * When finishing a new section - if we've previously logged, clear those logs.
+*/
