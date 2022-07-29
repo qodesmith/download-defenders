@@ -22,7 +22,7 @@ export default async function genSectionsData({page, dir}) {
       folderExists &&
       fs.readdirSync(folderPath).some(name => {
         const stats = fs.statSync(`${folderPath}/${name}`)
-        return stats.isFile() ? stats.size > 0 : false
+        return stats.isFile() ? stats.size === 0 : false
       })
     const shouldSkip =
       !has0ByteFiles &&
