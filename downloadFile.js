@@ -3,22 +3,24 @@ import https from 'https'
 import fs from 'fs-extra'
 
 export default async function downloadFile({url, dir, fileName}) {
-  if (!url) return
-
-  const fetcher = url.startsWith('http://') ? http : https
+  const fetcher = url.startsWith('https') ? https : http
   const fullFilePath = `${dir}/${fileName}`
 
   return new Promise((resolve, reject) => {
     try {
-      const options = {
-        headers: {
-          ...(url.endsWith('.mp3') ? {'Content-Type': 'audio/mpeg'} : {}),
-          ...(url.endsWith('.pdf') ? {'Content-Type': 'application/pdf'} : {}),
-        },
-      }
-
       // https://www.geeksforgeeks.org/how-to-download-a-file-using-node-js/
-      fetcher.get(url, options, res => {
+      // https://futurestud.io/tutorials/node-js-how-to-download-a-file
+      fetcher.get(url, res => {
+        const code = res.statusCode ?? 0
+        if (code >= 400) return reject(new Error(res.statusMessage))
+
+        // Handle redirects.
+        if (code > 300 && code < 400 && !!res.headers.location) {
+          return resolve(
+            downloadFile({url: res.headers.location, dir, fileName})
+          )
+        }
+
         // Ensure the target directory exists.
         fs.ensureDirSync(dir)
 
