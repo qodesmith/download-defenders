@@ -12,6 +12,7 @@ export default async function downloadYouTube({url, dir, fileName}) {
     const writableStream = fs.createWriteStream(fullFilePath)
 
     try {
+      // https://bit.ly/3Q5nP78 - example for rotating ipv6 option.
       ytdl(url, {quality: 'highest'})
         .pipe(writableStream)
         .on('finish', () => {
