@@ -3,6 +3,7 @@ import downloadYouTube from './downloadYouTube.js'
 import filenamify from 'filenamify'
 import chalk from 'chalk'
 import fs from 'fs-extra'
+import removeAnsiChars from './removeAnsiChars.js'
 
 function namey(fileName, extension) {
   const name = filenamify(fileName)
@@ -206,6 +207,7 @@ async function logProgress({promiseBools, current, total, name, hasLogged}) {
   const empty = chalk.cyan('▯')
   const full = chalk.cyan('▮')
   const blocks = `${full.repeat(current)}${empty.repeat(total - current)}`
+  const count = chalk.cyan(`${current}/${total}`)
   const fileTypes = ['mp3', 'pdf', 'mp4']
     .map((ext, i) => {
       const value = promiseBools[i]
@@ -214,15 +216,24 @@ async function logProgress({promiseBools, current, total, name, hasLogged}) {
     })
     .filter(Boolean)
     .join(comma)
+  const extensions = `${openBracket}${fileTypes}${closedBracket}`
+  const ellipsis = '…'
 
   return new Promise(resolve => {
     function logColorfulData() {
+      const terminalWidth = process.stdout.columns
+      const messageWidth = removeAnsiChars(
+        `${count} ${extensions} ${name}`
+      ).length
+      let nameUsed = name
+
+      if (messageWidth > terminalWidth) {
+        const difference = messageWidth - terminalWidth
+        nameUsed = `${name.slice(0, -(difference + 1))}${ellipsis}`
+      }
+
       console.log(`${openBracket}${blocks}${closedBracket}`)
-      console.log(
-        chalk.cyan(`${current}/${total}`),
-        `${openBracket}${fileTypes}${closedBracket}`,
-        chalk.gray(name)
-      )
+      console.log(count, extensions, chalk.gray(nameUsed))
       hasLogged.value = true
     }
 
