@@ -8,10 +8,15 @@ It turns out there are missing files, or at least files not published to the web
 
 ## How To Use
 
-- Install Node.js on your computer locally.
-- From your terminal run `node main.js`.
+- Install Node.js on your computer locally
+- `cd` into this repo's directory
+- run `npm install`
+- From your terminal run `npm start` or `node main.js`
 
 It can take quite some time to download as there are a _lot_ of episodes and most have a YouTube video. Make sure you're computer doesn't sleep during the process or you'll have to start over. However, when running the script again, it's smart to not re-download files that are already there. And in the case of a file that was partially downloaded because it didn't complete due to your computer sleeping, the file size will be 0 and this script will re-download those files.
+
+The CLI output is colorful and informative. You'll see download progress in real time:
+<img width="758" alt="Screen Shot 2022-07-29 at 2 49 31 PM" src="https://user-images.githubusercontent.com/11034792/182666346-a108658f-9c78-4057-b5d7-73937e438f7c.png">
 
 ## Check For Missing Files
 
