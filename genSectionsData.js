@@ -1,4 +1,5 @@
 import fs from 'fs-extra'
+import twoDigitNum from './twoDigitNum.js'
 
 export default async function genSectionsData({page, dir}) {
   await page.goto(process.env.SERIES_3_URL)
@@ -12,10 +13,8 @@ export default async function genSectionsData({page, dir}) {
     const article = articles[i]
     const name = await article.$eval('h2', async node => node?.textContent)
     const url = await article.$eval('a', async node => node?.href)
-    const num = count.toString().length === 1 ? `0${count}` : count
-    const nextNum =
-      nextCount.toString().length === 1 ? `0${nextCount}` : nextCount
-    const folderName = `${num} - ${name}`
+    const nextNum = twoDigitNum(nextCount)
+    const folderName = `${twoDigitNum(count)} - ${name}`
     const folderPath = `${dir}/${folderName}`
     const folderExists = currentFoldersSet.has(folderName)
     const has0ByteFiles =

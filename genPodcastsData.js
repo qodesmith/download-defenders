@@ -1,4 +1,5 @@
 import chalk from 'chalk'
+import twoDigitNum from './twoDigitNum.js'
 
 export default async function genPodcastsData({page, sectionsData}) {
   for (let i = 0; i < sectionsData.length; i++) {
@@ -49,7 +50,7 @@ export default async function genPodcastsData({page, sectionsData}) {
 
       for (let k = 0; k < podcasts.length; k++) {
         const count = section.podcasts.length + 1
-        const num = count.toString().length === 1 ? `0${count}` : count
+        const num = twoDigitNum(count)
         const podcast = podcasts[k]
         const name = await podcast.$eval('h2', async node => node?.textContent)
         const url = await podcast.$eval(
