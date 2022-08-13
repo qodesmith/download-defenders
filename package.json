@@ -5,7 +5,8 @@
   "type": "module",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js"
+    "start": "node main.js",
+    "dev": "vite"
   },
   "author": "",
   "license": "ISC",
@@ -16,5 +17,18 @@
     "fs-extra": "^10.1.0",
     "puppeteer": "^15.4.0",
     "ytdl-core": "^4.11.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.13",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "@types/styled-components": "^5.1.26",
+    "@vitejs/plugin-react": "^2.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "slugify": "^1.6.5",
+    "styled-components": "^5.3.5",
+    "typescript": "^4.7.4",
+    "vite": "^3.0.5"
   }
 }
