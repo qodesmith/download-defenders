@@ -36,7 +36,6 @@ function createDefendersData(): DefendersDataType {
       const sectionName = dirent.name
       const sectionPath = path.resolve(rootPath, sectionName)
       const sectionFiles = fs.readdirSync(sectionPath)
-      const sectionFilesSet = new Set(sectionFiles)
       const episodes: EpisodeType[] = []
 
       for (let i = 0; i < sectionFiles.length; i++) {
