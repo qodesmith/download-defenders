@@ -9,7 +9,7 @@ export default function HomePage() {
 
   return (
     <Header height="100px">
-      <a href="https://reasonablefaith.org" target="_blank">
+      <a className="rf-logo" href="https://reasonablefaith.org" target="_blank">
         <img src={rfLogo} alt="Reasonable Faith logo" />
       </a>
     </Header>
