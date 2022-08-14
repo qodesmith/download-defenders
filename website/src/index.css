@@ -34,7 +34,8 @@ a.rf-logo:hover {
 }
 
 body {
-  margin: 100px 0 0;
+  margin: 0;
+  padding-top: 100px;
   min-width: 320px;
   min-height: 100vh;
 }
