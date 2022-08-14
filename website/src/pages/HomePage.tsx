@@ -30,7 +30,7 @@ function Section({num, section}: SectionProps) {
         <a href="">{section.sectionName}</a>
       </H2>
       <Episodes>{section.episodes.length} episodes</Episodes>
-      {/* <Number>{num}</Number> */}
+      <Number>{num}</Number>
     </SectionContainer>
   )
 }
@@ -66,9 +66,13 @@ const Episodes = styled.div`
 
 const Number = styled.div`
   position: absolute;
-  bottom: 0;
-  right: 0;
+  top: 50%;
+  left: 100%;
+  transform: translate(-100%, -50%);
+  padding-right: 10px;
   color: #333;
   font-weight: bold;
   font-size: 4em;
+  z-index: -1;
+  opacity: 0.5;
 `
