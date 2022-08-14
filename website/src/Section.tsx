@@ -11,7 +11,9 @@ export default function Section({
 }) {
   return (
     <Container>
-      <H2>{section.sectionName}</H2>
+      <a href="#">
+        <H2>{section.sectionName}</H2>
+      </a>
       <div>{section.episodes.length} episodes</div>
       <Index>{num}</Index>
     </Container>
