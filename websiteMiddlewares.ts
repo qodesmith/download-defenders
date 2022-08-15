@@ -1,13 +1,16 @@
 import fs from 'fs-extra'
 import path from 'node:path'
+import slugify from 'slugify'
 
 export type DefendersDataType = SectionType[]
 export type SectionType = {
   sectionName: string // Foundations of Christian Doctrine
+  slug: string // foundations-of-christian-doctrine
   episodes: EpisodeType[]
 }
 export type EpisodeType = {
   title: string // Foundations of Christian Doctrine (Part 1)! Why Study Christian Doctrine
+  slug: string // foundations-of-christian-doctrine-part-1-why-study-christian-doctrine
   fileNames: {
     mp3?: string // 01 - Foundations of Christian Doctrine (Part 1)! Why Study Christian Doctrine.mp3
     mp4?: string
@@ -34,6 +37,10 @@ function createDefendersData(): DefendersDataType {
       if (!dirent.isDirectory()) return dataArr
 
       const sectionName = dirent.name
+      const sectionSlug = slugify(sectionName.slice(5), {
+        lower: true,
+        strict: true,
+      })
       const sectionPath = path.resolve(rootPath, sectionName)
       const sectionFiles = fs.readdirSync(sectionPath)
       const episodes: EpisodeType[] = []
@@ -61,6 +68,7 @@ function createDefendersData(): DefendersDataType {
         const episodeTitle = fileWithoutExt.slice(5) // Remove the number prefix.
         const episode: EpisodeType = {
           title: episodeTitle,
+          slug: slugify(episodeTitle, {lower: true, strict: true}),
           fileNames: fileTypes.reduce((acc: EpisodeType['fileNames'], ext) => {
             acc[ext] = `${fileWithoutExt}.${ext}`
             return acc
@@ -70,7 +78,11 @@ function createDefendersData(): DefendersDataType {
         episodes.push(episode)
       }
 
-      dataArr.push({sectionName: sectionName.slice(5), episodes})
+      dataArr.push({
+        sectionName: sectionName.slice(5),
+        slug: sectionSlug,
+        episodes,
+      })
       return dataArr
     }, [] as DefendersDataType)
 }
