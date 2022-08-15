@@ -41,9 +41,8 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
             </a>
           </Header>
           <Routes>
-            <Route path="/" element={<HomePage />}>
-              <Route path="/:section" element={<SectionPage />} />
-            </Route>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/:section" element={<SectionPage />} />
           </Routes>
         </BrowserRouter>
       </React.Suspense>

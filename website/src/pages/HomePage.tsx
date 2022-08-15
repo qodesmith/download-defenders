@@ -1,5 +1,6 @@
 import {useRecoilValue} from 'recoil'
 import styled from 'styled-components'
+import {Link} from 'react-router-dom'
 import {sectionsQueryAtom} from '../state/globalState'
 import {SectionType} from '../../../websiteMiddlewares'
 
@@ -27,7 +28,7 @@ function Section({num, section}: SectionProps) {
   return (
     <SectionContainer>
       <H2>
-        <a href="">{section.sectionName}</a>
+        <Link to={section.slug}>{section.sectionName}</Link>
       </H2>
       <Episodes>{section.episodes.length} episodes</Episodes>
       <Number>{num}</Number>
