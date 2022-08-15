@@ -4,13 +4,15 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import {RecoilRoot} from 'recoil'
 import styled from 'styled-components'
 import './index.css'
+import rfLogo from './assets/rf-logo.png'
 import HomePage from './pages/HomePage.js'
 import SectionPage from './pages/SectionPage.js'
-import rfLogo from './assets/rf-logo.png'
+import EpisodePage from './pages/EpisodePage'
 
 const Header = styled.header<{height: string}>`
   position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
   display: flex;
   justify-content: flex-end;
@@ -42,7 +44,8 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           </Header>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/:section" element={<SectionPage />} />
+            <Route path=":section" element={<SectionPage />} />
+            <Route path=":section/:episode" element={<EpisodePage />} />
           </Routes>
         </BrowserRouter>
       </React.Suspense>

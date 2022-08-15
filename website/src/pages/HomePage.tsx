@@ -6,7 +6,6 @@ import {SectionType} from '../../../websiteMiddlewares'
 
 export default function HomePage() {
   const sections = useRecoilValue(sectionsQueryAtom)
-  console.log(sections)
 
   return (
     <SectionsGrid>
@@ -41,7 +40,7 @@ const SectionsGrid = styled.div`
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: 100px;
   gap: 20px;
-  padding: 20px;
+  padding: 20px 0;
 `
 
 const SectionContainer = styled.section`
