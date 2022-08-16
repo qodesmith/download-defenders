@@ -133,7 +133,8 @@ export function devMiddleware(): Plugin {
         }
 
         for (const [fileName, filePath] of Object.entries(defendersFileMap)) {
-          if (req.url === `/defenders/${fileName}`) {
+          const decodedUrl = decodeURI(req.url)
+          if (decodedUrl === `/defenders/${fileName}`) {
             const {size} = fs.statSync(filePath)
             res.writeHead(200, {
               'Content-Type': contentTypes[filePath.slice(-3)],
