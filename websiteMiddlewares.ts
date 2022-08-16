@@ -139,10 +139,16 @@ export function devMiddleware(): Plugin {
             res.writeHead(200, {
               'Content-Type': contentTypes[filePath.slice(-3)],
               'Content-Length': size,
+
+              /*
+                https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Ranges
+                This is needed for the FE to be able fast-fwd content.
+              */
+              'Accept-Ranges': 'bytes',
             })
 
-            const readStream = fs.createReadStream(filePath)
-            return readStream.pipe(res, {end: true})
+            const fileContents = fs.readFileSync(filePath)
+            return res.end(fileContents)
           }
         }
 
