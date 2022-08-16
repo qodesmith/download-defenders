@@ -18,10 +18,10 @@ export const sectionSelectorFamily = selectorFamily<
 >({
   key: 'sectionSelectorFamily',
   get:
-    (slug: string | undefined) =>
+    (sectionSlug: string | undefined) =>
     ({get}) => {
       const data = get(sectionsQueryAtom)
-      return data.find(section => section.slug === slug)
+      return data.find(section => section.slug === sectionSlug)
     },
 })
 
