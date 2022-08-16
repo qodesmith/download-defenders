@@ -13,22 +13,36 @@ export default function EpisodePage() {
   if (!episode) return <div>No episode found</div>
 
   const {mp4, mp3} = episode.fileNames
-  console.log('MP4:', mp4)
 
   return (
     <>
-      <h1>{makeTitle(episode.title)}</h1>
-      {mp4 && (
-        <Video controls width="500">
-          <source src={`/defenders/${mp4}`} />
+      <H1>{makeTitle(episode.title)}</H1>
+      {mp4 ? (
+        <Video controls>
+          <source src={`/defenders/${mp4}`} type="video/mp4" />
         </Video>
+      ) : (
+        <Audio controls src={`/defenders/${mp3}`} />
       )}
     </>
   )
 }
 
+const H1 = styled.h1`
+  text-align: center;
+`
+
 const Video = styled.video`
   width: 50%;
+  min-width: 400px;
   margin: 0 auto;
   display: block;
+  border-radius: 25px;
+`
+
+const Audio = styled.audio`
+  width: 50%;
+  min-width: 400px;
+  display: block;
+  margin: 0 auto;
 `
