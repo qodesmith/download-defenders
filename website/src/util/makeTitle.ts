@@ -1,6 +1,9 @@
 export function makeTitle(str: string): string {
-  const value = str.split('!').pop()?.slice(1)
+  const index = str.indexOf('! ')
+  if (index === -1) return str
 
+  const value = str.slice(index + 2).trim()
   if (!value) throw new Error("Couldn't create title")
+
   return value
 }
