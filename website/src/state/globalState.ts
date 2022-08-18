@@ -18,7 +18,7 @@ export const sectionSelectorFamily = selectorFamily<
 >({
   key: 'sectionSelectorFamily',
   get:
-    (sectionSlug: string | undefined) =>
+    sectionSlug =>
     ({get}) => {
       const data = get(sectionsQueryAtom)
       return data.find(section => section.slug === sectionSlug)
@@ -31,7 +31,7 @@ export const sectionNumberSelectorFamily = selectorFamily<
 >({
   key: 'sectionNumberSelectorFamily',
   get:
-    (sectionSlug: string | undefined) =>
+    sectionSlug =>
     ({get}) => {
       const data = get(sectionsQueryAtom)
       const index = data.findIndex(section => section.slug === sectionSlug)
@@ -49,13 +49,7 @@ export const episodeSelectorFamily = selectorFamily<
 >({
   key: 'episodeSelectorFamily',
   get:
-    ({
-      sectionSlug,
-      episodeSlug,
-    }: {
-      sectionSlug: string | undefined
-      episodeSlug: string | undefined
-    }) =>
+    ({sectionSlug, episodeSlug}) =>
     ({get}) => {
       const section = get(sectionSelectorFamily(sectionSlug))
       return section?.episodes.find(episode => episode.slug === episodeSlug)
@@ -68,18 +62,25 @@ export const episodeNumberSelectorFamily = selectorFamily<
 >({
   key: 'episodeNumberSelectorFamily',
   get:
-    ({
-      sectionSlug,
-      episodeSlug,
-    }: {
-      sectionSlug: string | undefined
-      episodeSlug: string | undefined
-    }) =>
+    ({sectionSlug, episodeSlug}) =>
     ({get}) => {
       const section = get(sectionSelectorFamily(sectionSlug))
       const index = section?.episodes.findIndex(
         episode => episode.slug === episodeSlug
       )
       return index === undefined || index === -1 ? undefined : index + 1
+    },
+})
+
+export const totalEpisodesNumberSelectorFamily = selectorFamily<
+  number | undefined,
+  string
+>({
+  key: 'totalEpisodesNumberSelectorFamily',
+  get:
+    sectionSlug =>
+    ({get}) => {
+      const section = get(sectionSelectorFamily(sectionSlug))
+      return section?.episodes.length
     },
 })
