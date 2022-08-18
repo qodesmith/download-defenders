@@ -1,6 +1,6 @@
-# Downlaod Defenders!
+# Download Defenders!
 
-William Lane Craig teaches a systematic theology class in his local church called _[Defenders](https://www.reasonablefaith.org/podcasts/defenders-podcast-series-3)_. I went through series 1 years ago and it changed my life. You'd be better off going through Defenders than getting a typical seminary degree in this day and age!
+William Lane Craig teaches a systematic theology class in his local church called _[Defenders](https://www.reasonablefaith.org/podcasts/defenders-podcast-series-3)_. I went through the 1st series years ago and it changed my life. You'd be better off going through Defenders than getting a typical seminary degree in this day and age!
 
 Recently I wanted to go through series 3 but I wanted all the data stored **locally**, including the YouTube videos. This script does just that. It uses [Puppeteer](https://pptr.dev/) (a headless browser) to navigate the site, aggregate links to the mp3, YouTube, and PDF files, and downloads them all, organized into folders for each section.
 
