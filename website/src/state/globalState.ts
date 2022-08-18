@@ -25,6 +25,20 @@ export const sectionSelectorFamily = selectorFamily<
     },
 })
 
+export const sectionNumberSelectorFamily = selectorFamily<
+  number | undefined,
+  string | undefined
+>({
+  key: 'sectionNumberSelectorFamily',
+  get:
+    (sectionSlug: string | undefined) =>
+    ({get}) => {
+      const data = get(sectionsQueryAtom)
+      const index = data.findIndex(section => section.slug === sectionSlug)
+      return index === -1 ? undefined : index + 1
+    },
+})
+
 type EpisodeSelectorFamilyInputType = {
   sectionSlug: string | undefined
   episodeSlug: string | undefined
@@ -45,5 +59,27 @@ export const episodeSelectorFamily = selectorFamily<
     ({get}) => {
       const section = get(sectionSelectorFamily(sectionSlug))
       return section?.episodes.find(episode => episode.slug === episodeSlug)
+    },
+})
+
+export const episodeNumberSelectorFamily = selectorFamily<
+  number | undefined,
+  EpisodeSelectorFamilyInputType
+>({
+  key: 'episodeNumberSelectorFamily',
+  get:
+    ({
+      sectionSlug,
+      episodeSlug,
+    }: {
+      sectionSlug: string | undefined
+      episodeSlug: string | undefined
+    }) =>
+    ({get}) => {
+      const section = get(sectionSelectorFamily(sectionSlug))
+      const index = section?.episodes.findIndex(
+        episode => episode.slug === episodeSlug
+      )
+      return index === undefined || index === -1 ? undefined : index + 1
     },
 })
