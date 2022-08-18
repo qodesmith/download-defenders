@@ -72,11 +72,11 @@ export const episodeNumberSelectorFamily = selectorFamily<
     },
 })
 
-export const totalEpisodesNumberSelectorFamily = selectorFamily<
+export const episodesCountSelectorFamily = selectorFamily<
   number | undefined,
-  string
+  string | undefined
 >({
-  key: 'totalEpisodesNumberSelectorFamily',
+  key: 'episodesCountSelectorFamily',
   get:
     sectionSlug =>
     ({get}) => {

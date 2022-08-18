@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import {
   episodeNumberSelectorFamily,
   episodeSelectorFamily,
+  episodesCountSelectorFamily,
 } from '../state/globalState'
 import {makeTitle} from '../util/makeTitle'
 
@@ -16,6 +17,7 @@ export default function EpisodePage() {
   const episodeNumber = useRecoilValue(
     episodeNumberSelectorFamily({sectionSlug, episodeSlug})
   )
+  const episodesCount = useRecoilValue(episodesCountSelectorFamily(sectionSlug))
   const refSetPlaybackRate = useCallback(
     (el: HTMLVideoElement | HTMLAudioElement | null) => {
       if (el?.playbackRate) el.playbackRate = 1.5
@@ -31,7 +33,9 @@ export default function EpisodePage() {
     <>
       <H1>
         {makeTitle(episode.title)}
-        <EpisodeNumber>Episode {episodeNumber}</EpisodeNumber>
+        <EpisodeNumber>
+          Episode {episodeNumber} of {episodesCount}
+        </EpisodeNumber>
       </H1>
 
       {mp4 && false ? (
