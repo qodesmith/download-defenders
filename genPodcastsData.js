@@ -1,11 +1,12 @@
 import chalk from 'chalk'
 import twoDigitNum from './twoDigitNum.js'
+import appOptions from './appOptions.js'
 
 export default async function genPodcastsData({page, sectionsData}) {
   for (let i = 0; i < sectionsData.length; i++) {
     const section = sectionsData[i]
 
-    if (section.shouldSkip) {
+    if (section.shouldSkip && !appOptions.data) {
       console.log(
         chalk.gray.bold(`Skipping section ${i + 1} of ${sectionsData.length}:`),
         chalk.gray(section.folderName)

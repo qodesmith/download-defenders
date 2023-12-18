@@ -1,11 +1,12 @@
 import dotenv from 'dotenv'
 import fs from 'fs-extra'
 import puppeteer from 'puppeteer'
-import genSectionsData from './genSectionsData.js'
 import path from 'path'
+import chalk from 'chalk'
+import genSectionsData from './genSectionsData.js'
 import genPodcastsData from './genPodcastsData.js'
 import downloadPodcastData from './downloadPodcastData.js'
-import chalk from 'chalk'
+import appOptions from './appOptions.js'
 
 dotenv.config()
 
@@ -35,6 +36,15 @@ console.time(chalk.green.bold('Podcast data complete'))
 await genPodcastsData({page, sectionsData})
 console.timeEnd(chalk.green.bold('Podcast data complete'))
 console.log('--------------------')
+
+if (appOptions.data) {
+  console.log(
+    chalk.yellow.bold('PHASE 3:'),
+    chalk.yellow('writing data to JSON file...')
+  )
+  fs.writeJSONSync('./defendersData.json', {data: sectionsData}, {spaces: 2})
+  process.exit()
+}
 
 // For each podcast episode, download the final data.
 console.log(

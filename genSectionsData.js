@@ -32,11 +32,11 @@ export default async function genSectionsData({page, dir}) {
     }
 
     sectionsData.push({
-      dir: folderPath,
-      url,
-      podcasts: [],
-      shouldSkip,
       folderName,
+      url,
+      dir: folderPath,
+      shouldSkip,
+      podcasts: [],
     })
   }
 
