@@ -1,16 +1,16 @@
 import {useParams, Link} from 'react-router-dom'
-import {useRecoilValue} from 'recoil'
 import styled from 'styled-components'
 import {
   sectionNumberSelectorFamily,
   sectionSelectorFamily,
 } from '../state/globalState'
 import {makeTitle} from '../util/makeTitle'
+import {useAtomValue} from 'jotai'
 
 export default function SectionPage() {
   const {section: slug} = useParams()
-  const section = useRecoilValue(sectionSelectorFamily(slug))
-  const sectionNumber = useRecoilValue(sectionNumberSelectorFamily(slug))
+  const section = useAtomValue(sectionSelectorFamily(slug))
+  const sectionNumber = useAtomValue(sectionNumberSelectorFamily(slug))
 
   if (!section) return <div>No section found</div>
 

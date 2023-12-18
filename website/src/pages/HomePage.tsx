@@ -1,11 +1,13 @@
-import {useRecoilValue} from 'recoil'
 import styled from 'styled-components'
 import {Link} from 'react-router-dom'
 import {sectionsQueryAtom} from '../state/globalState'
 import {SectionType} from '../../../websiteMiddlewares'
+import ProgressIndicator from '../components/ProgressIndicator'
+import {useAtomValue} from 'jotai/react'
 
 export default function HomePage() {
-  const sections = useRecoilValue(sectionsQueryAtom)
+  const sections = useAtomValue(sectionsQueryAtom)
+  console.log({sections})
 
   return (
     <SectionsGrid>
@@ -24,6 +26,8 @@ type SectionProps = {
 }
 
 function Section({num, section}: SectionProps) {
+  const {sectionName} = section
+
   return (
     <SectionContainer>
       <H2>
@@ -31,6 +35,7 @@ function Section({num, section}: SectionProps) {
       </H2>
       <Episodes>{section.episodes.length} episodes</Episodes>
       <Number>{num}</Number>
+      <ProgressIndicator sectionName={sectionName} />
     </SectionContainer>
   )
 }
@@ -38,7 +43,7 @@ function Section({num, section}: SectionProps) {
 const SectionsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 100px;
+  grid-auto-rows: 125px;
   gap: 20px;
   padding: 20px 0;
 `

@@ -1,6 +1,5 @@
 import {useCallback} from 'react'
 import {useParams} from 'react-router-dom'
-import {useRecoilValue} from 'recoil'
 import styled from 'styled-components'
 import {
   episodeNumberSelectorFamily,
@@ -8,16 +7,17 @@ import {
   episodesCountSelectorFamily,
 } from '../state/globalState'
 import {makeTitle} from '../util/makeTitle'
+import {useAtomValue} from 'jotai'
 
 export default function EpisodePage() {
   const {section: sectionSlug, episode: episodeSlug} = useParams()
-  const episode = useRecoilValue(
+  const episode = useAtomValue(
     episodeSelectorFamily({sectionSlug, episodeSlug})
   )
-  const episodeNumber = useRecoilValue(
+  const episodeNumber = useAtomValue(
     episodeNumberSelectorFamily({sectionSlug, episodeSlug})
   )
-  const episodesCount = useRecoilValue(episodesCountSelectorFamily(sectionSlug))
+  const episodesCount = useAtomValue(episodesCountSelectorFamily(sectionSlug))
   const refSetPlaybackRate = useCallback(
     (el: HTMLVideoElement | HTMLAudioElement | null) => {
       if (el?.playbackRate) el.playbackRate = 1.5

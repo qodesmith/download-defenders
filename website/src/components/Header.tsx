@@ -1,13 +1,13 @@
 import styled from 'styled-components'
 import {Link, useLocation} from 'react-router-dom'
-import {useRecoilValue} from 'recoil'
 import rfLogo from '../assets/rf-logo.png'
 import {sectionSelectorFamily} from '../state/globalState'
+import {useAtomValue} from 'jotai'
 
 export default function Header() {
   const {pathname} = useLocation()
   const [sectionSlug, episodeSlug] = pathname.slice(1).split('/')
-  const section = useRecoilValue(sectionSelectorFamily(sectionSlug))
+  const section = useAtomValue(sectionSelectorFamily(sectionSlug))
   const showSectionLink = !!section && !!episodeSlug
 
   return (
