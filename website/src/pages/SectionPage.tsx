@@ -1,11 +1,16 @@
 import {useParams, Link} from 'react-router-dom'
 import styled from 'styled-components'
 import {
+  getSavedProgressEpisodeSelectorFamily,
   sectionNumberSelectorFamily,
   sectionSelectorFamily,
+  updateEpisodeCompletionAtom,
 } from '../state/globalState'
 import {makeTitle} from '../util/makeTitle'
-import {useAtomValue} from 'jotai'
+import {useAtomValue, useSetAtom} from 'jotai'
+import {EpisodeType} from '../../../websiteMiddlewares'
+import {useCallback} from 'react'
+import ResetSectionButton from '../components/ResetSectionButton'
 
 export default function SectionPage() {
   const {section: slug} = useParams()
@@ -20,11 +25,15 @@ export default function SectionPage() {
         <SectionNumber>{sectionNumber}</SectionNumber> {section.sectionName}
       </h1>
       <Ul>
-        {section.episodes.map(episode => {
+        <ResetSectionButton sectionSlug={section.slug} />
+        {section.episodes.map((episode, i) => {
           return (
-            <Li key={episode.title}>
-              <Link to={episode.slug}>{makeTitle(episode.title)}</Link>
-            </Li>
+            <ListItem
+              key={episode.slug}
+              sectionSlug={section.slug}
+              episode={episode}
+              episodeNumber={i + 1}
+            />
           )
         })}
       </Ul>
@@ -32,14 +41,62 @@ export default function SectionPage() {
   )
 }
 
+type ListItemProps = {
+  sectionSlug: string
+  episode: EpisodeType
+  episodeNumber: number
+}
+
+function ListItem({sectionSlug, episode, episodeNumber}: ListItemProps) {
+  const isChecked = useAtomValue(
+    getSavedProgressEpisodeSelectorFamily({
+      sectionSlug,
+      episodeSlug: episode.slug,
+    })
+  )
+  const textStyle = {textDecoration: isChecked ? 'line-through' : 'initial'}
+  const updateEpisodeCompletion = useSetAtom(updateEpisodeCompletionAtom)
+  const handleCheckboxChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const isComplete = e.target.checked
+      updateEpisodeCompletion({
+        sectionSlug,
+        episodeSlug: episode.slug,
+        isComplete,
+      })
+    },
+    []
+  )
+
+  return (
+    <Li key={episode.title}>
+      <input
+        type="checkbox"
+        checked={isChecked}
+        onChange={handleCheckboxChange}
+      />
+      <EpisodeNumber>{episodeNumber}.</EpisodeNumber>
+      <Link style={textStyle} to={episode.slug}>
+        {makeTitle(episode.title)}
+      </Link>
+    </Li>
+  )
+}
+
 const Ul = styled.ul`
-  list-style: number;
+  list-style: none;
 `
 
 const Li = styled.li`
   margin: 5px 0;
+  display: flex;
 `
 
 const SectionNumber = styled.span`
   color: #333;
+`
+
+const EpisodeNumber = styled.div`
+  padding-right: 0.5em;
+  padding-left: 0.5em;
 `

@@ -7,7 +7,6 @@ import {useAtomValue} from 'jotai/react'
 
 export default function HomePage() {
   const sections = useAtomValue(sectionsQueryAtom)
-  console.log({sections})
 
   return (
     <SectionsGrid>
@@ -26,8 +25,6 @@ type SectionProps = {
 }
 
 function Section({num, section}: SectionProps) {
-  const {sectionName} = section
-
   return (
     <SectionContainer>
       <H2>
@@ -35,7 +32,7 @@ function Section({num, section}: SectionProps) {
       </H2>
       <Episodes>{section.episodes.length} episodes</Episodes>
       <Number>{num}</Number>
-      <ProgressIndicator sectionName={sectionName} />
+      <ProgressIndicator sectionSlug={section.slug} />
     </SectionContainer>
   )
 }
