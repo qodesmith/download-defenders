@@ -18,6 +18,7 @@ export default function Header() {
           <Link to={`/${section.slug}`}>{section.sectionName}</Link>
         )}
       </LinksContainer>
+      <Defenders>DEFENDERS</Defenders>
       <a className="rf-logo" href="https://reasonablefaith.org" target="_blank">
         <img src={rfLogo} alt="Reasonable Faith logo" />
       </a>
@@ -46,4 +47,16 @@ const LinksContainer = styled.div`
   a {
     margin-right: 20px;
   }
+`
+
+const Defenders = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: 2.5em;
+  font-weight: bold;
+  opacity: 0.1;
+  letter-spacing: 1.5em;
 `
