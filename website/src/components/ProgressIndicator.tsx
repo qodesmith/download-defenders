@@ -1,20 +1,14 @@
-import {useAtomValue} from 'jotai'
 import styled from 'styled-components'
-import {getSavedProgressPercentSelectorFamily} from '../state/globalState'
 
 type Props = {
-  sectionSlug: string
+  percent: number
 }
 
-export default function ProgressIndicator({sectionSlug}: Props) {
-  const progressPercent = useAtomValue(
-    getSavedProgressPercentSelectorFamily(sectionSlug)
-  )
-
+export default function ProgressIndicator({percent}: Props) {
   return (
     <ProgressContainer>
-      <Bar progress={progressPercent} />
-      <div>{progressPercent}%</div>
+      <Bar percent={percent} />
+      <div>{percent}%</div>
     </ProgressContainer>
   )
 }
@@ -27,7 +21,7 @@ const ProgressContainer = styled.div`
   font-size: 0.7em;
 `
 
-const Bar = styled.div<{progress: number}>`
+const Bar = styled.div<{percent: number}>`
   flex-grow: 1;
   background: #626567;
   border-top-left-radius: 4px;
@@ -48,6 +42,6 @@ const Bar = styled.div<{progress: number}>`
     border-top-right-radius: 4px;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
-    width: ${props => props.progress}%;
+    width: ${props => props.percent}%;
   }
 `
