@@ -11,6 +11,7 @@ import {useAtomValue, useSetAtom} from 'jotai'
 import {EpisodeType} from '../../../websiteMiddlewares'
 import {useCallback} from 'react'
 import ResetSectionButton from '../components/ResetSectionButton'
+import CompleteSectionButton from '../components/CompleteSectionButton'
 
 export default function SectionPage() {
   const {section: slug} = useParams()
@@ -25,7 +26,10 @@ export default function SectionPage() {
         <SectionNumber>{sectionNumber}</SectionNumber> {section.sectionName}
       </h1>
       <Ul>
-        <ResetSectionButton sectionSlug={section.slug} />
+        <ButtonContainer>
+          <ResetSectionButton sectionSlug={section.slug} />
+          <CompleteSectionButton sectionSlug={section.slug} />
+        </ButtonContainer>
         {section.episodes.map((episode, i) => {
           return (
             <ListItem
@@ -99,4 +103,9 @@ const SectionNumber = styled.span`
 const EpisodeNumber = styled.div`
   padding-right: 0.5em;
   padding-left: 0.5em;
+`
+
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: 0.5em;
 `

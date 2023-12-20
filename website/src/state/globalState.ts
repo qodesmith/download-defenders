@@ -111,7 +111,8 @@ export const episodesCountSelectorFamily = atomFamily<
     ...
   }
 */
-type SavedProgressType = Record<string, Record<string, boolean>>
+type SavedProgressType = Record<string, SavedProgressItem | undefined>
+type SavedProgressItem = Record<string, boolean>
 
 /**
  * This atom syncs completed episodes per section in localStorage. This will
@@ -138,14 +139,14 @@ export const updateEpisodeCompletionAtom = atom<
   const savedProgressData = {...get(savedProgressAtom)}
 
   if (isComplete) {
-    savedProgressData[sectionSlug] ??= {}
-    savedProgressData[sectionSlug][episodeSlug] = true
+    const savedSection = (savedProgressData[sectionSlug] ??= {})
+    savedSection[episodeSlug] = true
   } else {
     // Delete the episode in localStorage.
-    delete savedProgressData[sectionSlug][episodeSlug]
+    delete savedProgressData[sectionSlug]?.[episodeSlug]
 
     // Delete empty sections in localStorage.
-    if (!Object.keys(savedProgressData[sectionSlug]).length) {
+    if (!Object.keys(savedProgressData[sectionSlug] ?? {}).length) {
       delete savedProgressData[sectionSlug]
     }
   }
@@ -199,4 +200,74 @@ export const resetSectionAtom = atom(null, (get, set, sectionSlug: string) => {
 
   delete savedProgressData[sectionSlug]
   set(savedProgressAtom, savedProgressData)
+})
+
+/**
+ * This write-only atom is used to complete all epsisodes in a section, given a
+ * section slug.
+ */
+export const completeSectionAtom = atom(
+  null,
+  async (get, set, sectionSlug: string) => {
+    const savedProgressData = {...get(savedProgressAtom)}
+    const section = await get(sectionSelectorFamily(sectionSlug))
+    const episodes = section?.episodes ?? []
+    const newSection = {} as SavedProgressItem
+    savedProgressData[sectionSlug] = newSection
+    episodes.forEach(({slug}) => {
+      newSection[slug] = true
+    })
+
+    set(savedProgressAtom, savedProgressData)
+  }
+)
+
+/**
+ * This (read-only) selector returns stats used atop the home page.
+ */
+export const statsSelector = atom(async get => {
+  const data = await get(sectionsQueryAtom)
+  const savedProgress = get(savedProgressAtom)
+  const totalSectionsCount = data.length
+  const totalEpisodesCount = data.reduce(
+    (acc, {episodes}) => acc + episodes.length,
+    0
+  )
+  const completedSectionsCount = data.reduce((acc, {episodes, slug}) => {
+    const sectionProgress = savedProgress[slug]
+    if (!sectionProgress) return acc
+
+    const completedEpisodesCount = Object.values(sectionProgress).reduce(
+      (acc, val) => acc + Number(val),
+      0
+    )
+
+    return acc + Number(completedEpisodesCount === episodes.length)
+  }, 0)
+  const completedEpisodesCount = Object.keys(savedProgress).reduce(
+    (acc, item) => {
+      const sectionData = savedProgress[item]!!!
+      const completedEpisodes = Object.values(sectionData).reduce(
+        (acc2, val) => {
+          return acc2 + Number(val)
+        },
+        0
+      )
+      return acc + completedEpisodes
+    },
+    0
+  )
+
+  return {
+    totalSectionsCount,
+    completedSectionsCount,
+    totalEpisodesCount,
+    completedEpisodesCount,
+    sectionCompletionPercentage: Number(
+      ((completedSectionsCount / totalSectionsCount) * 100).toFixed(2)
+    ),
+    episodeCompletionPercentage: Number(
+      ((completedEpisodesCount / totalEpisodesCount) * 100).toFixed(2)
+    ),
+  }
 })
