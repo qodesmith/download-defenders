@@ -12,6 +12,7 @@ import {EpisodeType} from '../../../websiteMiddlewares'
 import {useCallback} from 'react'
 import ResetSectionButton from '../components/ResetSectionButton'
 import CompleteSectionButton from '../components/CompleteSectionButton'
+import NotionLogo from '../components/NotionLogo'
 
 export default function SectionPage() {
   const {section: slug} = useParams()
@@ -62,11 +63,10 @@ function ListItem({sectionSlug, episode, episodeNumber}: ListItemProps) {
   const updateEpisodeCompletion = useSetAtom(updateEpisodeCompletionAtom)
   const handleCheckboxChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const isComplete = e.target.checked
       updateEpisodeCompletion({
         sectionSlug,
         episodeSlug: episode.slug,
-        isComplete,
+        isComplete: e.target.checked,
       })
     },
     []
@@ -80,6 +80,9 @@ function ListItem({sectionSlug, episode, episodeNumber}: ListItemProps) {
         onChange={handleCheckboxChange}
       />
       <EpisodeNumber>{episodeNumber}.</EpisodeNumber>
+      <NotionLogoContainer>
+        <NotionLogo size={20} url="" />
+      </NotionLogoContainer>
       <Link style={textStyle} to={episode.slug}>
         {makeTitle(episode.title)}
       </Link>
@@ -94,6 +97,7 @@ const Ul = styled.ul`
 const Li = styled.li`
   margin: 5px 0;
   display: flex;
+  align-items: center;
 `
 
 const SectionNumber = styled.span`
@@ -108,4 +112,8 @@ const EpisodeNumber = styled.div`
 const ButtonContainer = styled.div`
   display: flex;
   gap: 0.5em;
+`
+
+const NotionLogoContainer = styled.div`
+  padding-right: 0.5em;
 `
