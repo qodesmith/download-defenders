@@ -5,9 +5,11 @@ import {
   episodeNumberSelectorFamily,
   episodeSelectorFamily,
   episodesCountSelectorFamily,
+  getSavedProgressEpisodeSelectorFamily,
+  updateEpisodeCompletionAtom,
 } from '../state/globalState'
 import {makeTitle} from '../util/makeTitle'
-import {useAtomValue} from 'jotai'
+import {useAtomValue, useSetAtom} from 'jotai'
 
 export default function EpisodePage() {
   const {section: sectionSlug, episode: episodeSlug} = useParams()
@@ -23,6 +25,25 @@ export default function EpisodePage() {
       if (el?.playbackRate) el.playbackRate = 1.5
     },
     []
+  )
+  const updateEpisodeCompletion = useSetAtom(updateEpisodeCompletionAtom)
+  const handleCheckboxChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!sectionSlug || !episode) return
+
+      updateEpisodeCompletion({
+        sectionSlug,
+        episodeSlug: episode.slug,
+        isComplete: e.target.checked,
+      })
+    },
+    []
+  )
+  const isChecked = useAtomValue(
+    getSavedProgressEpisodeSelectorFamily({
+      sectionSlug: sectionSlug ?? '',
+      episodeSlug: episode?.slug ?? '',
+    })
   )
 
   if (!episode) return <div>No episode found</div>
@@ -45,6 +66,15 @@ export default function EpisodePage() {
       ) : (
         <Audio controls ref={refSetPlaybackRate} src={`/defenders/${mp3}`} />
       )}
+      <CompleteContainer>
+        <input
+          id="checkbox"
+          type="checkbox"
+          checked={isChecked}
+          onChange={handleCheckboxChange}
+        />
+        <label htmlFor="checkbox">Episode complete</label>
+      </CompleteContainer>
     </>
   )
 }
@@ -72,3 +102,16 @@ const Audio = styled.audio`
 const EpisodeNumber = styled.div`
   font-size: 1rem;
 `
+
+const CompleteContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  padding-top: 1em;
+
+  input {
+    margin-right: 0.5em;
+  }
+`
+
+const NotionUrlContainer = styled.div``
