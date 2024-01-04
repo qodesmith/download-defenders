@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import path from 'path'
 import fs from 'fs-extra'
 import chalk from 'chalk'
-import {genSectionsData} from './genSectionsData'
+import {genSectionsMetadata} from './genSectionsMetadata'
 
 dotenv.config({path: path.resolve(__dirname, '../.env')})
 
@@ -23,4 +23,4 @@ console.log(
   chalk.yellow('fetching sections data...')
 )
 
-genSectionsData({seriesUrl})
+const sectionsMetdata = await genSectionsMetadata({seriesUrl})
