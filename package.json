@@ -5,13 +5,14 @@
   "type": "module",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js",
+    "start": "bun run ./scraper/scrapeDefenders3.ts",
     "dev": "vite"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "chalk": "^5.0.1",
+    "cheerio": "^1.0.0-rc.12",
     "command-line-args": "^5.2.1",
     "dotenv": "^16.0.1",
     "filenamify": "^5.1.1",
