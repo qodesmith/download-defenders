@@ -1,15 +1,14 @@
-import {useCallback} from 'react'
+import {useCallback, useId} from 'react'
 import {useParams} from 'react-router-dom'
 import styled from 'styled-components'
 import {
   episodeNumberSelectorFamily,
   episodeSelectorFamily,
   episodesCountSelectorFamily,
-  getSavedProgressEpisodeSelectorFamily,
-  updateEpisodeCompletionAtom,
 } from '../state/globalState'
 import {makeTitle} from '../util/makeTitle'
-import {useAtomValue, useSetAtom} from 'jotai'
+import {useAtomValue} from 'jotai'
+import EpisodeCheckbox from '../components/EpisodeCheckbox'
 
 export default function EpisodePage() {
   const {section: sectionSlug, episode: episodeSlug} = useParams()
@@ -26,25 +25,7 @@ export default function EpisodePage() {
     },
     []
   )
-  const updateEpisodeCompletion = useSetAtom(updateEpisodeCompletionAtom)
-  const handleCheckboxChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (!sectionSlug || !episode) return
-
-      updateEpisodeCompletion({
-        sectionSlug,
-        episodeSlug: episode.slug,
-        isComplete: e.target.checked,
-      })
-    },
-    []
-  )
-  const isChecked = useAtomValue(
-    getSavedProgressEpisodeSelectorFamily({
-      sectionSlug: sectionSlug ?? '',
-      episodeSlug: episode?.slug ?? '',
-    })
-  )
+  const checkboxId = useId()
 
   if (!episode) return <div>No episode found</div>
 
@@ -55,7 +36,9 @@ export default function EpisodePage() {
       <H1>
         {makeTitle(episode.title)}
         <EpisodeNumber>
-          Episode {episodeNumber} of {episodesCount}
+          <a href={episode.url} target="_blank">
+            Episode {episodeNumber} of {episodesCount}
+          </a>
         </EpisodeNumber>
       </H1>
 
@@ -67,13 +50,12 @@ export default function EpisodePage() {
         <Audio controls ref={refSetPlaybackRate} src={`/defenders/${mp3}`} />
       )}
       <CompleteContainer>
-        <input
-          id="checkbox"
-          type="checkbox"
-          checked={isChecked}
-          onChange={handleCheckboxChange}
+        <EpisodeCheckbox
+          id={checkboxId}
+          sectionSlug={sectionSlug}
+          episodeSlug={episodeSlug}
         />
-        <label htmlFor="checkbox">Episode complete</label>
+        <label htmlFor={checkboxId}>Episode complete</label>
       </CompleteContainer>
     </>
   )

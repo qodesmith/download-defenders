@@ -4,15 +4,16 @@ import {
   getSavedProgressEpisodeSelectorFamily,
   sectionNumberSelectorFamily,
   sectionSelectorFamily,
-  updateEpisodeCompletionAtom,
 } from '../state/globalState'
 import {makeTitle} from '../util/makeTitle'
-import {useAtomValue, useSetAtom} from 'jotai'
+import {useAtomValue} from 'jotai'
 import {EpisodeType} from '../../../websiteMiddlewares'
-import {useCallback} from 'react'
+import {useId} from 'react'
 import ResetSectionButton from '../components/ResetSectionButton'
 import CompleteSectionButton from '../components/CompleteSectionButton'
 import NotionLogo from '../components/NotionLogo'
+import EpisodeCheckbox from '../components/EpisodeCheckbox'
+import Heading from '../components/Heading'
 
 export default function SectionPage() {
   const {section: slug} = useParams()
@@ -23,9 +24,11 @@ export default function SectionPage() {
 
   return (
     <>
-      <h1>
-        <SectionNumber>{sectionNumber}</SectionNumber> {section.sectionName}
-      </h1>
+      <Heading
+        title={section.sectionName}
+        number={<SectionNumber>{sectionNumber}</SectionNumber>}
+        url={section.url}
+      />
       <Ul>
         <ButtonContainer>
           <ResetSectionButton sectionSlug={section.slug} />
@@ -60,24 +63,14 @@ function ListItem({sectionSlug, episode, episodeNumber}: ListItemProps) {
     })
   )
   const textStyle = {textDecoration: isChecked ? 'line-through' : 'initial'}
-  const updateEpisodeCompletion = useSetAtom(updateEpisodeCompletionAtom)
-  const handleCheckboxChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      updateEpisodeCompletion({
-        sectionSlug,
-        episodeSlug: episode.slug,
-        isComplete: e.target.checked,
-      })
-    },
-    []
-  )
+  const checkboxId = useId()
 
   return (
     <Li key={episode.title}>
-      <input
-        type="checkbox"
-        checked={isChecked}
-        onChange={handleCheckboxChange}
+      <EpisodeCheckbox
+        id={checkboxId}
+        sectionSlug={sectionSlug}
+        episodeSlug={episode.slug}
       />
       <EpisodeNumber>{episodeNumber}.</EpisodeNumber>
       <NotionLogoContainer>
