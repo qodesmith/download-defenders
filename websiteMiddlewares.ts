@@ -9,6 +9,7 @@ export type SectionType = {
   sectionName: string // Foundations of Christian Doctrine
   slug: string // foundations-of-christian-doctrine
   episodes: EpisodeType[]
+  url: string
 }
 export type EpisodeType = {
   title: string // Foundations of Christian Doctrine (Part 1)! Why Study Christian Doctrine
@@ -18,6 +19,19 @@ export type EpisodeType = {
     mp4?: string
     pdf?: string
   }
+  url: string
+}
+type OriginalDefendersJson = {
+  data: {
+    folderName: string
+    url: string
+    dir: string
+    shouldSkip: boolean
+    podcasts: {
+      name: string
+      url: string
+    }[]
+  }[]
 }
 
 /*
@@ -31,13 +45,19 @@ type DefendersDataMap = Record<string, string>
 
 const fileTypes = ['mp3', 'mp4', 'pdf'] as const
 const rootPath = path.resolve('./Defenders Series 3')
+const jsonDataPath = path.resolve('./defendersData.json')
 
 function createDefendersData(): DefendersDataType {
+  const originalJsonData: OriginalDefendersJson = fs.readJSONSync(jsonDataPath)
+  const originalData = originalJsonData.data
+  let sectionIdx = 0
+
   return fs
     .readdirSync(rootPath, {withFileTypes: true})
     .reduce((dataArr, dirent) => {
       if (!dirent.isDirectory()) return dataArr
 
+      const {url: sectionUrl, podcasts} = originalData[sectionIdx++]
       const sectionName = dirent.name
       const sectionSlug = slugify(sectionName.slice(5), {
         lower: true,
@@ -46,6 +66,7 @@ function createDefendersData(): DefendersDataType {
       const sectionPath = path.resolve(rootPath, sectionName)
       const sectionFiles = fs.readdirSync(sectionPath)
       const episodes: EpisodeType[] = []
+      let episodeIdx = 0
 
       for (let i = 0; i < sectionFiles.length; i++) {
         const fileName = sectionFiles[i]
@@ -54,20 +75,21 @@ function createDefendersData(): DefendersDataType {
           fileName.endsWith(`.${ext}`)
         )
 
-        /*
-          Only process files related to the episode (i.e. skip '.DStore', etc.).
-          We process each episode's files in batch, just once. Skip otherwise.
-        */
+        /**
+         * Only process files related to the episode (skip '.DS_Store', etc.).
+         * We process each episode's files in batch, just once. Skip otherwise.
+         */
         if (!isEpisodeFile || episodes[episodeNumber - 1]) continue
 
-        /*
-          Remove the prefixed number and the suffixed file extension:
-            * 5 - Each episode starts with 5 characters, such as '01 - '
-            * 4 - Each episode ends with 4 characters, such as '.mp4'
-        */
+        /**
+         * Remove the prefixed number and the suffixed file extension:
+         *   5 - Each episode starts with 5 characters, such as '01 - '
+         *   4 - Each episode ends with 4 characters, such as '.mp4'
+         */
         const fileParts = path.parse(fileName)
         const fileWithoutExt = fileParts.name
         const episodeTitle = fileWithoutExt.slice(5) // Remove the number prefix.
+        const episodeUrl = podcasts[episodeIdx++].url
         const episode: EpisodeType = {
           title: episodeTitle,
           slug: slugify(episodeTitle, {lower: true, strict: true}),
@@ -75,6 +97,7 @@ function createDefendersData(): DefendersDataType {
             acc[ext] = `${fileWithoutExt}.${ext}`
             return acc
           }, {}),
+          url: episodeUrl,
         }
 
         episodes.push(episode)
@@ -84,6 +107,7 @@ function createDefendersData(): DefendersDataType {
         sectionName: sectionName.slice(5),
         slug: sectionSlug,
         episodes,
+        url: sectionUrl,
       })
       return dataArr
     }, [] as DefendersDataType)
