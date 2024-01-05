@@ -2,9 +2,17 @@ import {load as cheerioLoad} from 'cheerio'
 
 type GenSectionsInput = {
   seriesUrl: string
+  baseUrl: string
+}
+export type SectionMetadata = {
+  title: string
+  url: string
 }
 
-export async function genSectionsMetadata({seriesUrl}: GenSectionsInput) {
+export async function genSectionsMetadata({
+  seriesUrl,
+  baseUrl,
+}: GenSectionsInput): Promise<SectionMetadata[]> {
   const response = await fetch(seriesUrl)
   const html = await response.text()
   const $ = cheerioLoad(html)
@@ -26,6 +34,6 @@ export async function genSectionsMetadata({seriesUrl}: GenSectionsInput) {
   })
 
   return titles.map((title, i) => {
-    return {title, url: `${seriesUrl}${urls[i]}`}
+    return {title, url: `${baseUrl}${urls[i]}`}
   })
 }
