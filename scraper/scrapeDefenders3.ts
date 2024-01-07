@@ -6,7 +6,8 @@ import {genSectionsMetadata} from './genSectionsMetadata'
 import {genEpisodesMetadata} from './genEpisodesMetadata'
 import {genEpisodesMediaMetadata} from './genEpisodesMediaMetadata'
 
-dotenv.config({path: path.resolve(__dirname, '../.env')})
+const rootPath = path.resolve(__dirname, '..')
+dotenv.config({path: path.resolve(rootPath, '.env')})
 
 const baseUrl = process.env.BASE_URL
 if (!baseUrl) {
@@ -20,8 +21,8 @@ if (!seriesUrl) {
 
 // Make sure we have the main directory created.
 const seriesFolder = path.resolve(
-  __dirname,
-  `../${process.env.MAIN_DOWNLOAD_FOLDER_NAME}-TEMP`
+  rootPath,
+  `${process.env.MAIN_DOWNLOAD_FOLDER_NAME}-TEMP`
 )
 fs.ensureDirSync(seriesFolder)
 
@@ -58,10 +59,11 @@ const startMediaMetadata = Date.now()
 const completeMetadata = await genEpisodesMediaMetadata({
   sectionsAndEpisodesMetadata,
   chunkSize: 20,
+  seriesFolder,
 })
 console.log(
   chalk.gray.bold(`[${Date.now() - startMediaMetadata}ms]`),
   chalk.gray('- complete')
 )
 
-fs.writeJSONSync('./test.json', completeMetadata)
+fs.writeJSONSync('./defendersSeason3Data.json', completeMetadata, {spaces: 2})
