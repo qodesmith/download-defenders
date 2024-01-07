@@ -186,8 +186,9 @@ export const getSavedProgressPercentSelectorFamily = atomFamily<
       },
       0
     )
+    const num = (completedEpisodes / (sectionData?.episodes.length ?? 0)) * 100
 
-    return (completedEpisodes / (sectionData?.episodes.length ?? 0)) * 100
+    return Number(num.toFixed(2))
   })
 })
 
