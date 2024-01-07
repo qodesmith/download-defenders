@@ -19,11 +19,13 @@ if (!seriesUrl) {
   throw new Error('Could not find `process.env.SERIES_3_URL`')
 }
 
+const mainDownloadFolderName = process.env.MAIN_DOWNLOAD_FOLDER_NAME
+if (!mainDownloadFolderName) {
+  throw new Error('could not find `process.env.MAIN_DOWNLOAD_FOLDER_NAME`')
+}
+
 // Make sure we have the main directory created.
-const seriesFolder = path.resolve(
-  rootPath,
-  `${process.env.MAIN_DOWNLOAD_FOLDER_NAME}-TEMP`
-)
+const seriesFolder = path.resolve(rootPath, mainDownloadFolderName)
 fs.ensureDirSync(seriesFolder)
 
 console.log(
