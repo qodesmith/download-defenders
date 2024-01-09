@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useId, useRef} from 'react'
+import {useEffect, useId, useRef} from 'react'
 import {useParams} from 'react-router-dom'
 import styled from 'styled-components'
 import {
@@ -9,6 +9,7 @@ import {
 import {makeTitle} from '../util/makeTitle'
 import {useAtomValue} from 'jotai'
 import EpisodeCheckbox from '../components/EpisodeCheckbox'
+import {CopyAudioTime} from '../components/CopyAudioTime'
 
 export default function EpisodePage() {
   const {section: sectionSlug, episode: episodeSlug} = useParams()
@@ -77,6 +78,7 @@ export default function EpisodePage() {
         />
         <label htmlFor={checkboxId}>Episode complete</label>
       </CompleteContainer>
+      {audioRef.current && <CopyAudioTime audioEl={audioRef.current} />}
     </>
   )
 }
