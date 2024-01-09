@@ -2,12 +2,24 @@ import {useCallback} from 'react'
 import styled from 'styled-components'
 
 type Props = {
-  audioEl: HTMLAudioElement
+  audioRef: React.MutableRefObject<HTMLAudioElement | null>
+  episodeTitle: string
 }
 
-export function CopyAudioTime({audioEl}: Props) {
+export function CopyAudioTime({audioRef, episodeTitle}: Props) {
   const handleOnClick = useCallback(() => {
-    navigator.clipboard.writeText(Math.round(audioEl.currentTime).toString())
+    const audioEl = audioRef.current
+    if (!audioEl) return
+
+    const time = Math.round(audioEl.currentTime)
+    const minutes = Math.floor(time / 60)
+    const seconds = time - minutes * 60
+    const displayTime = `${minutes}:${seconds}`
+    const url = new URL(window.location.href)
+    url.searchParams.set('t', `${time}`)
+    const finalText = `[${displayTime} - ${episodeTitle}](${url})`
+
+    navigator.clipboard.writeText(finalText)
   }, [])
 
   return (
@@ -17,7 +29,7 @@ export function CopyAudioTime({audioEl}: Props) {
           <CopyIcon />
           <CopyIcon rear />
         </IconContainer>
-        <span>Copy audio time</span>
+        <span>Copy audio time markdown link</span>
       </Container>
     </Container>
   )

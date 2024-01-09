@@ -29,6 +29,11 @@ export default function EpisodePage() {
     const audio = audioRef.current
     if (!audio) return
 
+    const time = new URL(window.location.href).searchParams.get('t') ?? ''
+    if (!isNaN(+time)) {
+      audio.currentTime = +time
+    }
+
     audio.playbackRate = 1.5
     const listener = (e: KeyboardEvent) => {
       switch (e.key) {
@@ -51,11 +56,12 @@ export default function EpisodePage() {
   if (!episode) return <div>No episode found</div>
 
   const {mp4, mp3} = episode.fileNames
+  const episodeTitle = makeTitle(episode.title)
 
   return (
     <>
       <H1>
-        {makeTitle(episode.title)}
+        {episodeTitle}
         <EpisodeNumber>
           <a href={episode.url} target="_blank">
             Episode {episodeNumber} of {episodesCount}
@@ -78,7 +84,7 @@ export default function EpisodePage() {
         />
         <label htmlFor={checkboxId}>Episode complete</label>
       </CompleteContainer>
-      {audioRef.current && <CopyAudioTime audioEl={audioRef.current} />}
+      <CopyAudioTime audioRef={audioRef} episodeTitle={episodeTitle} />
     </>
   )
 }
