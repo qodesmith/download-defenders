@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import path from 'path'
+import path from 'node:path'
 import fs from 'fs-extra'
 import chalk from 'chalk'
 import {genSectionsMetadata} from './genSectionsMetadata'
