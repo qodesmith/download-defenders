@@ -6,6 +6,7 @@ import type {
 import {load as cheerioLoad} from 'cheerio'
 import {SectionMetadata} from './genSectionsMetadata'
 import {retryableFetch} from './retryableFetch'
+import {chunkArray} from './chunkArray'
 
 type GenMediaMetadataInput = {
   sectionsAndEpisodesMetadata: SectionAndEpisodeMetadata[]
@@ -19,7 +20,7 @@ type EpisodeWithMediaMetadata = EpisodeMetadata & {
   mp3Path: string
   youtubePath: string
 }
-type FullSectionMetadata = SectionMetadata & {
+export type FullSectionMetadata = SectionMetadata & {
   folderName: string // 01 - Foundations of Christian Doctrine
   episodes: EpisodeWithMediaMetadata[]
 }
@@ -118,7 +119,6 @@ export async function genEpisodesMediaMetadata({
       ...section,
       folderName: sectionFolderName,
       episodes: episodes.map((episode, episodeIdx) => {
-        const episodePrefix = `${episodeIdx + 1}`.padStart(2, '0')
         const [mp3FileName, ytFileName] = ['mp3', episode.youtubeUrl && 'mp4']
           .filter(Boolean)
           .map(fileExt => {
@@ -139,12 +139,6 @@ export async function genEpisodesMediaMetadata({
       }),
     }
   })
-}
-
-function chunkArray<T>(arr: T[], size): T[][] {
-  return Array.from({length: Math.ceil(arr.length / size)}, (v, i) =>
-    arr.slice(i * size, i * size + size)
-  )
 }
 
 function getEpisodeFileName({
