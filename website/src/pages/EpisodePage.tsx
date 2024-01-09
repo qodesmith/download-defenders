@@ -1,4 +1,4 @@
-import {useCallback, useId} from 'react'
+import {useCallback, useEffect, useId, useRef} from 'react'
 import {useParams} from 'react-router-dom'
 import styled from 'styled-components'
 import {
@@ -19,13 +19,33 @@ export default function EpisodePage() {
     episodeNumberSelectorFamily({sectionSlug, episodeSlug})
   )
   const episodesCount = useAtomValue(episodesCountSelectorFamily(sectionSlug))
-  const refSetPlaybackRate = useCallback(
-    (el: HTMLVideoElement | HTMLAudioElement | null) => {
-      if (el?.playbackRate) el.playbackRate = 1.5
-    },
-    []
-  )
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
   const checkboxId = useId()
+
+  useEffect(() => {
+    // We're only using the audio files.
+    const audio = audioRef.current
+    if (!audio) return
+
+    audio.playbackRate = 1.5
+    const listener = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case ' ':
+          return audio.paused ? audio.play() : audio.pause()
+        case 'ArrowLeft':
+          return (audio.currentTime -= 10) // Rewind by 10 seconds
+        case 'ArrowRight':
+          return (audio.currentTime += 10) // Forward by 10 seconds
+      }
+    }
+
+    document.addEventListener('keydown', listener)
+
+    return () => {
+      document.removeEventListener('keydown', listener)
+    }
+  }, [])
 
   if (!episode) return <div>No episode found</div>
 
@@ -43,11 +63,11 @@ export default function EpisodePage() {
       </H1>
 
       {mp4 && false ? (
-        <Video controls ref={refSetPlaybackRate}>
+        <Video controls ref={videoRef}>
           <source src={`/defenders/${mp4}`} type="video/mp4" />
         </Video>
       ) : (
-        <Audio controls ref={refSetPlaybackRate} src={`/defenders/${mp3}`} />
+        <Audio controls ref={audioRef} src={`/defenders/${mp3}`} />
       )}
       <CompleteContainer>
         <EpisodeCheckbox
