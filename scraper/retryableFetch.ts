@@ -8,6 +8,10 @@ export function retryableFetch(
   function executeFetch() {
     return fetch(url)
       .then(res => {
+        if (res.redirected) {
+          return retryableFetch(res.url, {timeout, maxRetries})
+        }
+
         tries++
         if (res.ok || tries > maxRetries) return res
 
