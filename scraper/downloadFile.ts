@@ -6,7 +6,10 @@ type DownloadFileInput = {
   filePath: string
 }
 
-export function downloadFile({url, filePath}: DownloadFileInput) {
+export function downloadFile<T>({
+  url,
+  filePath,
+}: DownloadFileInput): Promise<T> {
   return retryableFetch(url)
     .then((res: Response) => res.arrayBuffer())
     .then((buffer: ArrayBuffer) => {
