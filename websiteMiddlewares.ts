@@ -24,6 +24,19 @@ const defendersSeason3Data = fs.readFileSync(
   {encoding: 'utf8'}
 )
 
+const episodeFilePaths = (
+  JSON.parse(defendersSeason3Data) as DefendersData
+).reduce((acc, section) => {
+  const sectionSlug = section.slug
+
+  section.episodes.forEach(({slug: episodeSlug, mp3Path}) => {
+    const route = `/${sectionSlug}/${episodeSlug}.mp3`
+    acc[route] = mp3Path
+  })
+
+  return acc
+}, {} as Record<string, string>)
+
 export function devMiddleware(): Plugin {
   return {
     name: 'defenders-data-middleware',
@@ -33,6 +46,24 @@ export function devMiddleware(): Plugin {
 
         if (req.url === '/defenders/data') {
           return res.end(defendersSeason3Data)
+        }
+
+        const filePath = episodeFilePaths[req.url]
+        if (filePath) {
+          const {size} = fs.statSync(filePath)
+          res.writeHead(200, {
+            'Content-Type': 'audio/mpeg',
+            'Content-Length': size,
+
+            /**
+             * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Ranges
+             * This is needed for the FE to be able fast-fwd content.
+             */
+            'Accept-Ranges': 'bytes',
+          })
+
+          const fileContents = fs.readFileSync(filePath)
+          return res.end(fileContents)
         }
 
         next()
