@@ -4,13 +4,15 @@ import {retryableFetch} from './retryableFetch'
 type DownloadFileInput = {
   url: string
   filePath: string
+  verbose?: boolean
 }
 
-export function downloadFile<T>({
+export function downloadFile({
   url,
   filePath,
-}: DownloadFileInput): Promise<T> {
-  return retryableFetch(url)
+  verbose,
+}: DownloadFileInput): Promise<void> {
+  return retryableFetch(url, {verbose})
     .then((res: Response) => res.arrayBuffer())
     .then((buffer: ArrayBuffer) => {
       fs.outputFileSync(filePath, buffer)
