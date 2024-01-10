@@ -16,7 +16,6 @@ type GenMediaMetadataInput = {
 type EpisodeWithMediaMetadata = EpisodeMetadata & {
   mp3Url: string
   youtubeUrl: string
-  title: string
   mp3Path: string
   youtubePath: string
 }
@@ -44,7 +43,7 @@ export async function genEpisodesMediaMetadata({
    */
   sectionsAndEpisodesMetadata.forEach(
     ({episodes, title: sectionTitle}, sectionIdx) => {
-      episodes.forEach(({url, title}, episodeIdx) => {
+      episodes.forEach(({url, title, slug}, episodeIdx) => {
         const promiseFxn = async () => {
           return retryableFetch(url)
             .then(res => res.text())
@@ -72,7 +71,13 @@ export async function genEpisodesMediaMetadata({
 
               const key = `section${sectionIdx}`
               episodesObj[key] ??= []
-              episodesObj[key][episodeIdx] = {mp3Url, youtubeUrl, title, url}
+              episodesObj[key][episodeIdx] = {
+                mp3Url,
+                youtubeUrl,
+                title,
+                slug,
+                url,
+              }
             })
         }
 

@@ -1,5 +1,6 @@
 import {load as cheerioLoad} from 'cheerio'
 import {SectionMetadata} from './genSectionsMetadata'
+import slugify from 'slugify'
 
 type GenEpisodesInput = {
   sectionsMetadata: SectionMetadata[]
@@ -7,6 +8,7 @@ type GenEpisodesInput = {
 }
 export type EpisodeMetadata = {
   title: string
+  slug: string
   url: string
 }
 export type SectionAndEpisodeMetadata = SectionMetadata & {
@@ -21,9 +23,16 @@ export async function genEpisodesMetadata({
 
   for (let i = 0; i < sectionsMetadata.length; i++) {
     const section = sectionsMetadata[i]
-    const episodesMetadata = await genSectionEpisodesMetadata({
-      url: section.url,
-      baseUrl,
+    const episodesMetadata = (
+      await genSectionEpisodesMetadata({
+        url: section.url,
+        baseUrl,
+      })
+    ).map((episode, episodeIdx) => {
+      const episodeNum = `${episodeIdx + 1}`.padStart(2, '0')
+      const slug = slugify(`${episodeNum} ${episode.title}`, {lower: true})
+
+      return {...episode, slug}
     })
 
     allEpisodesMetadata.push(episodesMetadata)
@@ -41,7 +50,7 @@ type GenSectionEpisodesInput = {
 async function genSectionEpisodesMetadata({
   url,
   baseUrl,
-}: GenSectionEpisodesInput): Promise<EpisodeMetadata[]> {
+}: GenSectionEpisodesInput): Promise<Omit<EpisodeMetadata, 'slug'>[]> {
   const response = await fetch(url)
   const html = await response.text()
   const $ = cheerioLoad(html)

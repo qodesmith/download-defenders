@@ -1,4 +1,5 @@
 import {load as cheerioLoad} from 'cheerio'
+import slugify from 'slugify'
 
 type GenSectionsInput = {
   seriesUrl: string
@@ -6,6 +7,7 @@ type GenSectionsInput = {
 }
 export type SectionMetadata = {
   title: string
+  slug: string
   url: string
 }
 
@@ -34,6 +36,10 @@ export async function genSectionsMetadata({
   })
 
   return titles.map((title, i) => {
-    return {title, url: `${baseUrl}${urls[i]}`}
+    return {
+      title,
+      url: `${baseUrl}${urls[i]}`,
+      slug: slugify(title, {lower: true}),
+    }
   })
 }
