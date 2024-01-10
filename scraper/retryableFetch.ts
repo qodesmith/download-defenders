@@ -1,11 +1,18 @@
 import chalk from 'chalk'
 
+type Options = {
+  timeout?: number
+  maxRetries?: number
+  verbose?: boolean
+}
+
 export function retryableFetch(
   url: string,
-  {timeout = 100, maxRetries = 3}: {timeout?: number; maxRetries?: number} = {}
-) {
+  {timeout = 100, maxRetries = 3, verbose = false}: Options | undefined = {}
+): Promise<Response> {
   let tries = 0
-  function executeFetch() {
+
+  async function executeFetch(): Promise<Response> {
     return fetch(url)
       .then(res => {
         if (res.redirected) {
@@ -13,12 +20,20 @@ export function retryableFetch(
         }
 
         tries++
-        if (res.ok || tries > maxRetries) return res
+        const triesExceeded = tries > maxRetries
+        if (res.ok || triesExceeded) {
+          if (verbose && triesExceeded) {
+            console.log(chalk.gray(`  [then] retry attempts exceeded - ${url}`))
+          }
+          return res
+        }
 
         return new Promise(resolve => {
           setTimeout(resolve, timeout)
         }).then(() => {
-          console.log(chalk.gray('  [then] retrying fetch...'))
+          if (verbose) {
+            console.log(chalk.gray('  [then] retrying fetch...'))
+          }
           return executeFetch()
         })
       })
@@ -29,7 +44,9 @@ export function retryableFetch(
         return new Promise(resolve => {
           setTimeout(resolve, timeout)
         }).then(() => {
-          console.log(chalk.gray('  [catch] retrying fetch ...'))
+          if (verbose) {
+            console.log(chalk.gray('  [catch] retrying fetch ...'))
+          }
           return executeFetch()
         })
       })
