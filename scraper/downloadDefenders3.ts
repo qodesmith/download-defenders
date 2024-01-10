@@ -4,7 +4,6 @@ import path from 'node:path'
 import fs from 'fs-extra'
 import {downloadFile} from './downloadFile'
 import chalk from 'chalk'
-import {chunkArray} from './chunkArray'
 
 const rootPath = path.resolve(__dirname, '..')
 dotenv.config({path: path.resolve(rootPath, '.env')})
@@ -22,38 +21,48 @@ const sections = fs.readJSONSync(
   path.resolve(rootPath, 'defendersSeason3Data.json')
 ) as FullSectionMetadata[]
 
-// Create all episode promise functions to download mp3's (ignore YouTube).
-const allEpisodePromiseBatchFxns: (() => Promise<void>)[] = []
-sections.forEach(section => {
-  // Create the section folder.
-  const sectionFolder = `${seriesFolder}/${section.folderName}`
-  fs.ensureDirSync(sectionFolder)
+type EpisodePromiseObj = {
+  promiseFxn: () => Promise<void>
+  title: string
+  sectionProgress: string
+}
 
-  const episodeChunks = chunkArray(section.episodes, 5)
-  episodeChunks.forEach((episodes, i) => {
-    const chunkPromiseFxn = async () => {
-      console.log(
-        chalk.gray(`[${i + 1} of ${episodeChunks.length}]`),
-        chalk.gray(`Downloading ${section.title} (${episodes.length} episodes)`)
-      )
+const episodePromiseObjs = sections.reduce(
+  (promiseObjs, section, sectionIdx) => {
+    section.episodes.forEach(episode => {
+      const episodePromiseObj: EpisodePromiseObj = {
+        promiseFxn: async () => {
+          return downloadFile({
+            url: episode.mp3Url,
+            filePath: episode.mp3Path,
+            verbose: true,
+          })
+        },
+        title: episode.title,
+        sectionProgress: `[section ${sectionIdx + 1} of ${sections.length}]`,
+      }
 
-      const episodePromises = episodes.map(
-        ({mp3Url, mp3Path, youtubeUrl, youtubePath, title}) => {
-          return downloadFile<void>({url: mp3Url, filePath: mp3Path})
-        }
-      )
+      promiseObjs.push(episodePromiseObj)
+    })
 
-      await Promise.all(episodePromises)
-      return
-    }
-
-    allEpisodePromiseBatchFxns.push(chunkPromiseFxn)
-  })
-})
+    return promiseObjs
+  },
+  [] as EpisodePromiseObj[]
+)
 
 // 276 episodes
-await allEpisodePromiseBatchFxns.reduce((promise, batchFxn, i) => {
-  return promise.then(() => {
-    return batchFxn()
-  })
-}, Promise.resolve())
+await episodePromiseObjs.reduce(
+  (promise, {promiseFxn, title, sectionProgress}, i) => {
+    return promise.then(() => {
+      console.log(
+        chalk.gray(
+          `[${i + 1} of ${episodePromiseObjs.length}]${sectionProgress}`
+        ),
+        chalk.gray(title)
+      )
+
+      return promiseFxn()
+    })
+  },
+  Promise.resolve()
+)
