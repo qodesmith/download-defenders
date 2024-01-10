@@ -7,7 +7,6 @@ import {
 } from '../state/globalState'
 import {makeTitle} from '../util/makeTitle'
 import {useAtomValue} from 'jotai'
-import {EpisodeType} from '../../../websiteMiddlewares'
 import {useId} from 'react'
 import ResetSectionButton from '../components/ResetSectionButton'
 import CompleteSectionButton from '../components/CompleteSectionButton'

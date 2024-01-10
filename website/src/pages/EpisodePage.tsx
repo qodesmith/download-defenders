@@ -21,7 +21,6 @@ export default function EpisodePage() {
   )
   const episodesCount = useAtomValue(episodesCountSelectorFamily(sectionSlug))
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const videoRef = useRef<HTMLVideoElement | null>(null)
   const checkboxId = useId()
 
   useEffect(() => {
@@ -54,8 +53,6 @@ export default function EpisodePage() {
   }, [])
 
   if (!episode) return <div>No episode found</div>
-
-  const {mp4, mp3} = episode.fileNames
   const episodeTitle = makeTitle(episode.title)
 
   return (
@@ -68,14 +65,7 @@ export default function EpisodePage() {
           </a>
         </EpisodeNumber>
       </H1>
-
-      {mp4 && false ? (
-        <Video controls ref={videoRef}>
-          <source src={`/defenders/${mp4}`} type="video/mp4" />
-        </Video>
-      ) : (
-        <Audio controls ref={audioRef} src={`/defenders/${mp3}`} />
-      )}
+      <Audio controls ref={audioRef} src={`/defenders/${episode.mp3Path}`} />
       <CompleteContainer>
         <EpisodeCheckbox
           id={checkboxId}

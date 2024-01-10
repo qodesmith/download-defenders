@@ -1,13 +1,13 @@
 import styled from 'styled-components'
-import {SectionType} from '../../../websiteMiddlewares'
 import ProgressIndicator from './ProgressIndicator'
 import {Link} from 'react-router-dom'
 import {useAtomValue} from 'jotai'
 import {getSavedProgressPercentSelectorFamily} from '../state/globalState'
+import {DefendersData} from '../../../websiteMiddlewares'
 
 type Props = {
   num: number
-  section: SectionType
+  section: DefendersData[number]
 }
 
 export default function SectionBlock({num, section}: Props) {
@@ -18,7 +18,7 @@ export default function SectionBlock({num, section}: Props) {
   return (
     <SectionContainer>
       <H2>
-        <Link to={section.slug}>{section.sectionName}</Link>
+        <Link to={section.slug}>{section.title}</Link>
       </H2>
       <Episodes>{section.episodes.length} episodes</Episodes>
       <Number>{num}</Number>

@@ -13,11 +13,7 @@ export default function HomePage() {
       <SectionsGrid>
         {sections.map((section, i) => {
           return (
-            <SectionBlock
-              key={section.sectionName}
-              num={i + 1}
-              section={section}
-            />
+            <SectionBlock key={section.title} num={i + 1} section={section} />
           )
         })}
       </SectionsGrid>

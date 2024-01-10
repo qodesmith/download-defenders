@@ -2,30 +2,24 @@ import {Atom, atom} from 'jotai'
 import {atomWithDefault, atomFamily, atomWithStorage} from 'jotai/utils'
 import deepEqual from 'fast-deep-equal'
 
-import type {
-  DefendersDataType,
-  SectionType,
-  EpisodeType,
-} from '../../../websiteMiddlewares'
+import type {DefendersData} from '../../../websiteMiddlewares'
 
 /**
  * This atom queries and returns all the data for Defenders Series 3.
  * There are 14 total sections, each container a number of episodes.
  */
-export const sectionsQueryAtom = atomWithDefault<Promise<DefendersDataType>>(
-  () => {
-    return fetch('/defenders/data')
-      .then(res => res.json())
-      .then((res: {data: DefendersDataType}) => res.data)
-  }
-)
+export const sectionsQueryAtom = atomWithDefault<Promise<DefendersData>>(() => {
+  return fetch('/defenders/data')
+    .then(res => res.json())
+    .then((data: DefendersData) => data)
+})
 
 /**
  * This selector family returns data for a single section, given a section slug.
  */
 export const sectionSelectorFamily = atomFamily<
   string | undefined,
-  Atom<Promise<SectionType | undefined>>
+  Atom<Promise<DefendersData[number] | undefined>>
 >(sectionSlug => {
   return atom(async get => {
     const data = await get(sectionsQueryAtom)
@@ -59,7 +53,7 @@ type EpisodeSelectorFamilyInputType = {
  */
 export const episodeSelectorFamily = atomFamily<
   EpisodeSelectorFamilyInputType,
-  Atom<Promise<EpisodeType | undefined>>
+  Atom<Promise<DefendersData[number]['episodes'][number] | undefined>>
 >(({sectionSlug, episodeSlug}) => {
   return atom(async get => {
     if (!sectionSlug || !episodeSlug) return undefined
