@@ -54,6 +54,7 @@ export default function EpisodePage() {
 
   if (!episode) return <div>No episode found</div>
   const episodeTitle = makeTitle(episode.title)
+  const audioSrc = `/${sectionSlug}/${episodeSlug}.mp3`
 
   return (
     <>
@@ -65,7 +66,7 @@ export default function EpisodePage() {
           </a>
         </EpisodeNumber>
       </H1>
-      <Audio controls ref={audioRef} src={`/defenders/${episode.mp3Path}`} />
+      <Audio controls ref={audioRef} src={audioSrc} />
       <CompleteContainer>
         <EpisodeCheckbox
           id={checkboxId}
