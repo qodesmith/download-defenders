@@ -13,7 +13,7 @@ export function CopyAudioTime({audioRef, episodeTitle}: Props) {
 
     const time = Math.round(audioEl.currentTime)
     const minutes = Math.floor(time / 60)
-    const seconds = time - minutes * 60
+    const seconds = `${time - minutes * 60}`.padStart(2, '0')
     const displayTime = `${minutes}:${seconds}`
     const url = new URL(window.location.href)
     url.searchParams.set('t', `${time}`)
