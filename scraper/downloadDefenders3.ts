@@ -4,8 +4,10 @@ import path from 'node:path'
 import fs from 'fs-extra'
 import {downloadFile} from './downloadFile'
 import chalk from 'chalk'
+import {addEpisodeMp3Durations} from './addEpisodeMp3Durations'
 
 const rootPath = path.resolve(__dirname, '..')
+const jsonDataPath = path.resolve(rootPath, 'defendersSeason3Data.json')
 dotenv.config({path: path.resolve(rootPath, '.env')})
 
 const mainDownloadFolderName = process.env.MAIN_DOWNLOAD_FOLDER_NAME
@@ -17,9 +19,12 @@ if (!mainDownloadFolderName) {
 const seriesFolder = path.resolve(rootPath, mainDownloadFolderName)
 fs.ensureDirSync(seriesFolder)
 
-const sections = fs.readJSONSync(
-  path.resolve(rootPath, 'defendersSeason3Data.json')
-) as FullSectionMetadata[]
+/**
+ * At this point, the only thing the data is missing is mp3 durations. This will
+ * be added in a step below where we download the mp3s and read the metadata,
+ * storing it back into our json file.
+ */
+const sections = fs.readJSONSync(jsonDataPath) as FullSectionMetadata[]
 
 type EpisodePromiseObj = {
   promiseFxn: () => Promise<void>
@@ -50,7 +55,7 @@ const episodePromiseObjs = sections.reduce(
   [] as EpisodePromiseObj[]
 )
 
-// 276 episodes
+// Download 276 episodes
 await episodePromiseObjs.reduce(
   (promise, {promiseFxn, title, sectionProgress}, i) => {
     return promise.then(() => {
@@ -66,3 +71,7 @@ await episodePromiseObjs.reduce(
   },
   Promise.resolve()
 )
+
+// Add mp3 durations to all episodes.
+const completeSectionsMetadata = await addEpisodeMp3Durations(sections)
+fs.writeJSONSync(jsonDataPath, completeSectionsMetadata, {spaces: 2})
