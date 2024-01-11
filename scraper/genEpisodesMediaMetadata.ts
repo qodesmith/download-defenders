@@ -7,13 +7,14 @@ import {load as cheerioLoad} from 'cheerio'
 import {SectionMetadata} from './genSectionsMetadata'
 import {retryableFetch} from './retryableFetch'
 import {chunkArray} from './chunkArray'
+import slugify from 'slugify'
 
 type GenMediaMetadataInput = {
   sectionsAndEpisodesMetadata: SectionAndEpisodeMetadata[]
   chunkSize: number
   seriesFolder: string
 }
-type EpisodeWithMediaMetadata = EpisodeMetadata & {
+export type EpisodeWithMediaMetadata = EpisodeMetadata & {
   mp3Url: string
   youtubeUrl: string
   mp3Path: string
@@ -41,50 +42,48 @@ export async function genEpisodesMediaMetadata({
   /**
    * Create a function that triggers a fetch for each individual episode.
    */
-  sectionsAndEpisodesMetadata.forEach(
-    ({episodes, title: sectionTitle}, sectionIdx) => {
-      episodes.forEach(({url, title, slug}, episodeIdx) => {
-        const promiseFxn = async () => {
-          return retryableFetch(url)
-            .then(res => res.text())
-            .then(html => {
-              const $ = cheerioLoad(html)
-              const mp3Url = $('a.download-btn.icon-download').attr('href')
-              const iframeYoutubeUrl = $('iframe').attr('src')
-              const youtubeUrl =
-                iframeYoutubeUrl?.replace('/embed/', '/watch?v=') ?? ''
+  sectionsAndEpisodesMetadata.forEach(({episodes}, sectionIdx) => {
+    episodes.forEach(({url, title, slug}, episodeIdx) => {
+      const promiseFxn = async () => {
+        return retryableFetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const $ = cheerioLoad(html)
+            const mp3Url = $('a.download-btn.icon-download').attr('href')
+            const iframeYoutubeUrl = $('iframe').attr('src')
+            const youtubeUrl =
+              iframeYoutubeUrl?.replace('/embed/', '/watch?v=') ?? ''
 
-              if (!mp3Url) {
-                throw new Error(`Unable to find MP3 url for "${title}"`)
-              }
+            if (!mp3Url) {
+              throw new Error(`Unable to find MP3 url for "${title}"`)
+            }
 
-              if (!youtubeUrl) {
-                console.log(
-                  chalk.gray(
-                    `No YouTube url found [${sectionIdx + 1}|${
-                      episodeIdx + 1
-                    }] - ${title}`
-                  )
+            if (!youtubeUrl) {
+              console.log(
+                chalk.gray(
+                  `No YouTube url found [${sectionIdx + 1}|${
+                    episodeIdx + 1
+                  }] - ${title}`
                 )
-                console.log(chalk.gray(`    => ${url}`))
-              }
+              )
+              console.log(chalk.gray(`    => ${url}`))
+            }
 
-              const key = `section${sectionIdx}`
-              episodesObj[key] ??= []
-              episodesObj[key][episodeIdx] = {
-                mp3Url,
-                youtubeUrl,
-                title,
-                slug,
-                url,
-              }
-            })
-        }
+            const key = `section${sectionIdx}`
+            episodesObj[key] ??= []
+            episodesObj[key][episodeIdx] = {
+              mp3Url,
+              youtubeUrl,
+              title,
+              slug,
+              url,
+            }
+          })
+      }
 
-        episodePromiseFxns.push(promiseFxn)
-      })
-    }
-  )
+      episodePromiseFxns.push(promiseFxn)
+    })
+  })
 
   // Group the promises into batches to avoid 429 responses (too many requests).
   const promiseFxnChunks = chunkArray(episodePromiseFxns, chunkSize)
@@ -127,10 +126,9 @@ export async function genEpisodesMediaMetadata({
         const [mp3FileName, ytFileName] = ['mp3', episode.youtubeUrl && 'mp4']
           .filter(Boolean)
           .map(fileExt => {
-            return getEpisodeFileName({
-              title: episode.title,
-              episodeIdx,
-              fileExt,
+            const episodePrefix = `${episodeIdx + 1}`.padStart(2, '0')
+            return slugify(`${episodePrefix}-${episode.title}.${fileExt}`, {
+              lower: true,
             })
           })
 
@@ -144,22 +142,4 @@ export async function genEpisodesMediaMetadata({
       }),
     }
   })
-}
-
-function getEpisodeFileName({
-  title,
-  episodeIdx,
-  fileExt,
-}: {
-  title: string
-  episodeIdx: number
-  fileExt: string
-}) {
-  const episodePrefix = `${episodeIdx + 1}`.padStart(2, '0')
-  const episodeFileName = title
-    .replace(/[<>:"/\\|?*]/g, '')
-    .replace(/ /g, '-')
-    .toLowerCase()
-
-  return `${episodePrefix} ${episodeFileName}.${fileExt}`
 }
