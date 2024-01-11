@@ -22,16 +22,42 @@ export function CopyAudioTime({audioRef, episodeTitle}: Props) {
     navigator.clipboard.writeText(finalText)
   }, [])
 
+  const handleOnClick2 = useCallback(() => {
+    const audioEl = audioRef.current
+    if (!audioEl) return
+
+    const time = Math.round(audioEl.currentTime)
+    const minutes = Math.floor(time / 60)
+    const seconds = `${time - minutes * 60}`.padStart(2, '0')
+    const displayTime = `${minutes}:${seconds}`
+    const url = new URL(window.location.href)
+    url.searchParams.set('t', `${time}`)
+    const finalText = `[${displayTime}](${url})`
+
+    navigator.clipboard.writeText(finalText)
+  }, [])
+
   return (
-    <Container>
-      <Container pointer onClick={handleOnClick}>
-        <IconContainer>
-          <CopyIcon />
-          <CopyIcon rear />
-        </IconContainer>
-        <span>Copy audio time markdown link</span>
+    <>
+      <Container>
+        <Container pointer onClick={handleOnClick}>
+          <IconContainer>
+            <CopyIcon />
+            <CopyIcon rear />
+          </IconContainer>
+          <span>Copy time & episode link</span>
+        </Container>
       </Container>
-    </Container>
+      <Container>
+        <Container pointer onClick={handleOnClick2}>
+          <IconContainer>
+            <CopyIcon />
+            <CopyIcon rear />
+          </IconContainer>
+          <span>Copy time</span>
+        </Container>
+      </Container>
+    </>
   )
 }
 
