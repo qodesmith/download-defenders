@@ -13,6 +13,7 @@ import CompleteSectionButton from '../components/CompleteSectionButton'
 import NotionLogo from '../components/NotionLogo'
 import EpisodeCheckbox from '../components/EpisodeCheckbox'
 import Heading from '../components/Heading'
+import {DefendersData} from '../../../websiteMiddlewares'
 
 export default function SectionPage() {
   const {section: slug} = useParams()
@@ -24,7 +25,7 @@ export default function SectionPage() {
   return (
     <>
       <Heading
-        title={section.sectionName}
+        title={section.title}
         number={<SectionNumber>{sectionNumber}</SectionNumber>}
         url={section.url}
       />
@@ -50,7 +51,7 @@ export default function SectionPage() {
 
 type ListItemProps = {
   sectionSlug: string
-  episode: EpisodeType
+  episode: DefendersData[number]['episodes'][number]
   episodeNumber: number
 }
 

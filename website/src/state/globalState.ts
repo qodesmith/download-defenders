@@ -266,3 +266,23 @@ export const statsSelector = atom(async get => {
     ),
   }
 })
+
+export const totalSectionTimeSelectorFamily = atomFamily<
+  string | undefined,
+  Atom<Promise<string>>
+>(sectionSlug => {
+  return atom(async get => {
+    const section = await get(sectionSelectorFamily(sectionSlug))
+
+    const seconds = section?.episodes.reduce((acc, {mp3Duration}) => {
+      return acc + mp3Duration
+    }, 0)
+
+    if (!seconds) return ''
+
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+
+    return `${hours ? `${hours}hr ` : ''}${minutes}min`
+  })
+})

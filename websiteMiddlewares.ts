@@ -15,6 +15,7 @@ export type DefendersData = {
     slug: string
     url: string
     mp3Path: string
+    mp3Duration: number
     youtubePath: string
   }[]
 }[]

@@ -2,7 +2,10 @@ import styled from 'styled-components'
 import ProgressIndicator from './ProgressIndicator'
 import {Link} from 'react-router-dom'
 import {useAtomValue} from 'jotai'
-import {getSavedProgressPercentSelectorFamily} from '../state/globalState'
+import {
+  getSavedProgressPercentSelectorFamily,
+  totalSectionTimeSelectorFamily,
+} from '../state/globalState'
 import {DefendersData} from '../../../websiteMiddlewares'
 
 type Props = {
@@ -14,13 +17,18 @@ export default function SectionBlock({num, section}: Props) {
   const progressPercent = useAtomValue(
     getSavedProgressPercentSelectorFamily(section.slug)
   )
+  const totalRuntime = useAtomValue(
+    totalSectionTimeSelectorFamily(section.slug)
+  )
 
   return (
     <SectionContainer>
       <H2>
         <Link to={section.slug}>{section.title}</Link>
       </H2>
-      <Episodes>{section.episodes.length} episodes</Episodes>
+      <Episodes>
+        {section.episodes.length} episodes <Small>({totalRuntime})</Small>
+      </Episodes>
       <Number>{num}</Number>
       <ProgressIndicatorContainer>
         <ProgressIndicator percent={progressPercent} />
@@ -32,7 +40,7 @@ export default function SectionBlock({num, section}: Props) {
 const SectionContainer = styled.section`
   width: 100%;
   border: 1px solid #333;
-  border-radius: 20px;
+  border-radius: 1em;
   padding: 10px;
   text-align: center;
   position: relative;
@@ -48,6 +56,10 @@ const H2 = styled.h2`
 
 const Episodes = styled.div`
   font-style: italic;
+`
+
+const Small = styled.span`
+  font-size: 0.7em;
 `
 
 const Number = styled.div`
