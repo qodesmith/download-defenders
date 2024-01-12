@@ -15,7 +15,7 @@ export default function Header() {
       <LinksContainer>
         {sectionSlug && <Link to="/">All Sections</Link>}
         {showSectionLink && (
-          <Link to={`/${section.slug}`}>{section.sectionName}</Link>
+          <Link to={`/${section.slug}`}>{section.title}</Link>
         )}
       </LinksContainer>
       <Defenders>DEFENDERS</Defenders>

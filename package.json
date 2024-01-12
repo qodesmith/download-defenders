@@ -22,6 +22,8 @@
     "ytdl-core": "^4.11.0"
   },
   "devDependencies": {
+    "@stylexjs/rollup-plugin": "^0.4.1",
+    "@stylexjs/stylex": "^0.4.1",
     "@types/fs-extra": "^9.0.13",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
