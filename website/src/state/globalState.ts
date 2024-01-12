@@ -273,12 +273,11 @@ export const totalSectionTimeSelectorFamily = atomFamily<
 >(sectionSlug => {
   return atom(async get => {
     const section = await get(sectionSelectorFamily(sectionSlug))
+    if (!section) return ''
 
-    const seconds = section?.episodes.reduce((acc, {mp3Duration}) => {
+    const seconds = section.episodes.reduce((acc, {mp3Duration}) => {
       return acc + mp3Duration
     }, 0)
-
-    if (!seconds) return ''
 
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
