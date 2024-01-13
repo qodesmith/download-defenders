@@ -1,5 +1,4 @@
 import {useParams, Link} from 'react-router-dom'
-import styled from 'styled-components'
 import {
   getSavedProgressEpisodeSelectorFamily,
   sectionNumberSelectorFamily,
@@ -14,6 +13,32 @@ import NotionLogo from '../components/NotionLogo'
 import EpisodeCheckbox from '../components/EpisodeCheckbox'
 import Heading from '../components/Heading'
 import {DefendersData} from '../../../websiteMiddlewares'
+import * as stylex from '@stylexjs/stylex'
+
+const styles = stylex.create({
+  ul: {
+    listStyle: 'none',
+  },
+  li: {
+    margin: '5px 0',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  sectionNumber: {
+    color: '#333',
+  },
+  episodeNumber: {
+    paddingRight: '0.5em',
+    paddingLeft: '0.5em',
+  },
+  buttonContainer: {
+    display: 'flex',
+    gap: '0.5em',
+  },
+  notionLogoContainer: {
+    paddingRight: '0.5em',
+  },
+})
 
 export default function SectionPage() {
   const {section: slug} = useParams()
@@ -26,14 +51,16 @@ export default function SectionPage() {
     <>
       <Heading
         title={section.title}
-        number={<SectionNumber>{sectionNumber}</SectionNumber>}
+        number={
+          <span {...stylex.props(styles.sectionNumber)}>{sectionNumber}</span>
+        }
         url={section.url}
       />
-      <Ul>
-        <ButtonContainer>
+      <ul {...stylex.props(styles.ul)}>
+        <div {...stylex.props(styles.buttonContainer)}>
           <ResetSectionButton sectionSlug={section.slug} />
           <CompleteSectionButton sectionSlug={section.slug} />
-        </ButtonContainer>
+        </div>
         {section.episodes.map((episode, i) => {
           return (
             <ListItem
@@ -44,7 +71,7 @@ export default function SectionPage() {
             />
           )
         })}
-      </Ul>
+      </ul>
     </>
   )
 }
@@ -66,47 +93,19 @@ function ListItem({sectionSlug, episode, episodeNumber}: ListItemProps) {
   const checkboxId = useId()
 
   return (
-    <Li key={episode.title}>
+    <li key={episode.title} {...stylex.props(styles.li)}>
       <EpisodeCheckbox
         id={checkboxId}
         sectionSlug={sectionSlug}
         episodeSlug={episode.slug}
       />
-      <EpisodeNumber>{episodeNumber}.</EpisodeNumber>
-      <NotionLogoContainer>
+      <div {...stylex.props(styles.episodeNumber)}>{episodeNumber}.</div>
+      <div {...stylex.props(styles.notionLogoContainer)}>
         <NotionLogo size={20} url="" />
-      </NotionLogoContainer>
+      </div>
       <Link style={textStyle} to={episode.slug}>
         {makeTitle(episode.title)}
       </Link>
-    </Li>
+    </li>
   )
 }
-
-const Ul = styled.ul`
-  list-style: none;
-`
-
-const Li = styled.li`
-  margin: 5px 0;
-  display: flex;
-  align-items: center;
-`
-
-const SectionNumber = styled.span`
-  color: #333;
-`
-
-const EpisodeNumber = styled.div`
-  padding-right: 0.5em;
-  padding-left: 0.5em;
-`
-
-const ButtonContainer = styled.div`
-  display: flex;
-  gap: 0.5em;
-`
-
-const NotionLogoContainer = styled.div`
-  padding-right: 0.5em;
-`

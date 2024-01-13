@@ -1,6 +1,5 @@
 import {useEffect, useId, useRef} from 'react'
 import {useParams} from 'react-router-dom'
-import styled from 'styled-components'
 import {
   episodeNumberSelectorFamily,
   episodeSelectorFamily,
@@ -10,6 +9,32 @@ import {makeTitle} from '../util/makeTitle'
 import {useAtomValue} from 'jotai'
 import EpisodeCheckbox from '../components/EpisodeCheckbox'
 import {CopyAudioTime} from '../components/CopyAudioTime'
+import * as stylex from '@stylexjs/stylex'
+
+const styles = stylex.create({
+  h1: {
+    textAlign: 'center',
+    position: 'relative',
+  },
+  audio: {
+    width: '50%',
+    minWidth: '400px',
+    display: 'block',
+    margin: '0 auto',
+  },
+  episodeNumber: {
+    fontSize: '1rem',
+  },
+  completeContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'baseline',
+    paddingTop: '1em',
+  },
+  completeContainerInput: {
+    marginRight: '0.5em',
+  },
+})
 
 export default function EpisodePage() {
   const {section: sectionSlug, episode: episodeSlug} = useParams()
@@ -58,61 +83,30 @@ export default function EpisodePage() {
 
   return (
     <>
-      <H1>
+      <h1 {...stylex.props(styles.h1)}>
         {episodeTitle}
-        <EpisodeNumber>
+        <div {...stylex.props(styles.episodeNumber)}>
           <a href={episode.url} target="_blank">
             Episode {episodeNumber} of {episodesCount}
           </a>
-        </EpisodeNumber>
-      </H1>
-      <Audio controls ref={audioRef} src={audioSrc} />
-      <CompleteContainer>
+        </div>
+      </h1>
+      <audio
+        controls
+        ref={audioRef}
+        src={audioSrc}
+        {...stylex.props(styles.audio)}
+      />
+      <div {...stylex.props(styles.completeContainer)}>
         <EpisodeCheckbox
           id={checkboxId}
           sectionSlug={sectionSlug}
           episodeSlug={episodeSlug}
+          styles={styles.completeContainerInput}
         />
         <label htmlFor={checkboxId}>Episode complete</label>
-      </CompleteContainer>
+      </div>
       <CopyAudioTime audioRef={audioRef} episodeTitle={episodeTitle} />
     </>
   )
 }
-
-const H1 = styled.h1`
-  text-align: center;
-  position: relative;
-`
-
-const Video = styled.video`
-  width: 50%;
-  min-width: 400px;
-  margin: 0 auto;
-  display: block;
-  border-radius: 25px;
-`
-
-const Audio = styled.audio`
-  width: 50%;
-  min-width: 400px;
-  display: block;
-  margin: 0 auto;
-`
-
-const EpisodeNumber = styled.div`
-  font-size: 1rem;
-`
-
-const CompleteContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-  padding-top: 1em;
-
-  input {
-    margin-right: 0.5em;
-  }
-`
-
-const NotionUrlContainer = styled.div``

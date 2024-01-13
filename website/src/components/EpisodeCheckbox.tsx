@@ -4,14 +4,22 @@ import {
   updateEpisodeCompletionAtom,
 } from '../state/globalState'
 import {useCallback} from 'react'
+import * as stylex from '@stylexjs/stylex'
+import type {StyleXStyles} from '@stylexjs/stylex'
 
 type Props = {
   id: string
   sectionSlug?: string
   episodeSlug?: string
+  styles?: StyleXStyles
 }
 
-export default function EpisodeCheckbox({id, sectionSlug, episodeSlug}: Props) {
+export default function EpisodeCheckbox({
+  id,
+  sectionSlug,
+  episodeSlug,
+  styles,
+}: Props) {
   const isChecked = useAtomValue(
     getSavedProgressEpisodeSelectorFamily({
       sectionSlug: sectionSlug ?? '',
@@ -38,6 +46,7 @@ export default function EpisodeCheckbox({id, sectionSlug, episodeSlug}: Props) {
       type="checkbox"
       checked={isChecked}
       onChange={handleCheckboxChange}
+      {...stylex.props(styles)}
     />
   )
 }
