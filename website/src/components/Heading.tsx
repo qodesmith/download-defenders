@@ -1,5 +1,26 @@
 import {ReactNode} from 'react'
-import styled from 'styled-components'
+import * as stylex from '@stylexjs/stylex'
+
+const styles = stylex.create({
+  h1: {
+    fontSize: '3.2em',
+    lineHeight: '1.1',
+    fontWeight: 'bold',
+  },
+  grid: {
+    padding: '1em 0',
+    display: 'grid',
+    gridTemplateColumns: '50px 1fr',
+    gridTemplateRows: 'auto',
+    gridTemplateAreas: `
+      'number title'
+      '. url'
+    `,
+  },
+  link: {
+    gridArea: 'url',
+  },
+})
 
 type Props = {
   number: ReactNode
@@ -9,32 +30,12 @@ type Props = {
 
 export default function Heading({number, title, url}: Props) {
   return (
-    <Grid>
-      <H1>{number}</H1>
-      <H1>{title}</H1>
-      <Url href={url} target="_blank">
+    <div {...stylex.props(styles.grid)}>
+      <div {...stylex.props(styles.h1)}>{number}</div>
+      <div {...stylex.props(styles.h1)}>{title}</div>
+      <a href={url} target="_blank" {...stylex.props(styles.link)}>
         {url}
-      </Url>
-    </Grid>
+      </a>
+    </div>
   )
 }
-
-const H1 = styled.div`
-  font-size: 3.2em;
-  line-height: 1.1;
-  font-weight: bold;
-`
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: 50px 1fr;
-  grid-template-rows: auto;
-  grid-template-areas:
-    'number title'
-    '. url';
-  padding: 1em 0;
-`
-
-const Url = styled.a`
-  grid-area: url;
-`

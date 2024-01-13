@@ -1,4 +1,3 @@
-import styled from 'styled-components'
 import ProgressIndicator from './ProgressIndicator'
 import {Link} from 'react-router-dom'
 import {useAtomValue} from 'jotai'
@@ -7,6 +6,49 @@ import {
   totalSectionTimeSelectorFamily,
 } from '../state/globalState'
 import {DefendersData} from '../../../websiteMiddlewares'
+import * as stylex from '@stylexjs/stylex'
+
+const styles = stylex.create({
+  sectionContainer: {
+    width: '100%',
+    border: '1px solid #333',
+    borderRadius: '1em',
+    padding: '10px',
+    textAlign: 'center',
+    position: 'relative',
+  },
+  noMargin: {
+    margin: 0,
+  },
+  bold: {
+    fontWeight: 'bold',
+  },
+  italic: {
+    fontStyle: 'italic',
+  },
+  small: {
+    fontSize: '0.7em',
+  },
+  number: {
+    position: 'absolute',
+    top: '50%',
+    left: '100%',
+    transform: 'translate(-100%, -50%)',
+    paddingRight: '10px',
+    color: '#333',
+    fontWeight: 'bold',
+    fontSize: '4em',
+    zIndex: '-1',
+    opacity: '0.5',
+  },
+  progressIndicatorContainer: {
+    position: 'absolute',
+    width: '100%',
+    left: '0',
+    padding: '0 0.5em 0.5em',
+    bottom: '0',
+  },
+})
 
 type Props = {
   num: number
@@ -20,65 +62,23 @@ export default function SectionBlock({num, section}: Props) {
   const totalRuntime = useAtomValue(
     totalSectionTimeSelectorFamily(section.slug)
   )
+  const boldCls = stylex.props(styles.bold).className
 
   return (
-    <SectionContainer>
-      <H2>
-        <Link to={section.slug}>{section.title}</Link>
-      </H2>
-      <Episodes>
-        {section.episodes.length} episodes <Small>({totalRuntime})</Small>
-      </Episodes>
-      <Number>{num}</Number>
-      <ProgressIndicatorContainer>
+    <section {...stylex.props(styles.sectionContainer)}>
+      <h2 {...stylex.props(styles.noMargin)}>
+        <Link className={boldCls} to={section.slug}>
+          {section.title}
+        </Link>
+      </h2>
+      <div {...stylex.props(styles.italic)}>
+        {section.episodes.length} episodes{' '}
+        <span {...stylex.props(styles.small)}>({totalRuntime})</span>
+      </div>
+      <div {...stylex.props(styles.number)}>{num}</div>
+      <div {...stylex.props(styles.progressIndicatorContainer)}>
         <ProgressIndicator percent={progressPercent} />
-      </ProgressIndicatorContainer>
-    </SectionContainer>
+      </div>
+    </section>
   )
 }
-
-const SectionContainer = styled.section`
-  width: 100%;
-  border: 1px solid #333;
-  border-radius: 1em;
-  padding: 10px;
-  text-align: center;
-  position: relative;
-`
-
-const H2 = styled.h2`
-  margin: 0;
-
-  a {
-    font-weight: bold;
-  }
-`
-
-const Episodes = styled.div`
-  font-style: italic;
-`
-
-const Small = styled.span`
-  font-size: 0.7em;
-`
-
-const Number = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 100%;
-  transform: translate(-100%, -50%);
-  padding-right: 10px;
-  color: #333;
-  font-weight: bold;
-  font-size: 4em;
-  z-index: -1;
-  opacity: 0.5;
-`
-
-const ProgressIndicatorContainer = styled.div`
-  position: absolute;
-  width: 100%;
-  left: 0;
-  padding: 0 0.5em 0.5em;
-  bottom: 0;
-`
