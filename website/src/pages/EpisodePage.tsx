@@ -11,6 +11,7 @@ import EpisodeCheckbox from '../components/EpisodeCheckbox'
 import {CopyAudioTime} from '../components/CopyAudioTime'
 import * as stylex from '@stylexjs/stylex'
 import {PrevNext} from '../components/PrevNext'
+import {EpisodeNumberLinks} from '../components/EpisodeNumberLinks'
 
 const styles = stylex.create({
   h1: {
@@ -111,6 +112,7 @@ export default function EpisodePage() {
       {episodeNumber != null && sectionSlug && (
         <PrevNext episodeIdx={episodeNumber - 1} sectionSlug={sectionSlug} />
       )}
+      <EpisodeNumberLinks />
     </>
   )
 }
