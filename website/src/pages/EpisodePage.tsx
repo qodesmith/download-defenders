@@ -10,6 +10,7 @@ import {useAtomValue} from 'jotai'
 import EpisodeCheckbox from '../components/EpisodeCheckbox'
 import {CopyAudioTime} from '../components/CopyAudioTime'
 import * as stylex from '@stylexjs/stylex'
+import {PrevNext} from '../components/PrevNext'
 
 const styles = stylex.create({
   h1: {
@@ -107,6 +108,9 @@ export default function EpisodePage() {
         <label htmlFor={checkboxId}>Episode complete</label>
       </div>
       <CopyAudioTime audioRef={audioRef} episodeTitle={episodeTitle} />
+      {episodeNumber != null && sectionSlug && (
+        <PrevNext episodeIdx={episodeNumber - 1} sectionSlug={sectionSlug} />
+      )}
     </>
   )
 }
