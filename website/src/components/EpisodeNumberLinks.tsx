@@ -10,7 +10,7 @@ const styles = stylex.create({
     gap: '.5em',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    margin: '1em auto 0',
+    margin: '0 auto',
     fontSize: '.8em',
   },
 })

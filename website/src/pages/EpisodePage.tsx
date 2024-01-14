@@ -36,6 +36,12 @@ const styles = stylex.create({
   completeContainerInput: {
     marginRight: '0.5em',
   },
+  actionsContainer: {
+    display: 'flex',
+    gap: '2em',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
 })
 
 export default function EpisodePage() {
@@ -99,16 +105,18 @@ export default function EpisodePage() {
         src={audioSrc}
         {...stylex.props(styles.audio)}
       />
-      <div {...stylex.props(styles.completeContainer)}>
-        <EpisodeCheckbox
-          id={checkboxId}
-          sectionSlug={sectionSlug}
-          episodeSlug={episodeSlug}
-          styles={styles.completeContainerInput}
-        />
-        <label htmlFor={checkboxId}>Episode complete</label>
+      <div {...stylex.props(styles.actionsContainer)}>
+        <div {...stylex.props(styles.completeContainer)}>
+          <EpisodeCheckbox
+            id={checkboxId}
+            sectionSlug={sectionSlug}
+            episodeSlug={episodeSlug}
+            styles={styles.completeContainerInput}
+          />
+          <label htmlFor={checkboxId}>Episode complete</label>
+        </div>
+        <CopyAudioTime audioRef={audioRef} episodeTitle={episodeTitle} />
       </div>
-      <CopyAudioTime audioRef={audioRef} episodeTitle={episodeTitle} />
       {episodeNumber != null && sectionSlug && (
         <PrevNext episodeIdx={episodeNumber - 1} sectionSlug={sectionSlug} />
       )}

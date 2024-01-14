@@ -8,7 +8,7 @@ const styles = stylex.create({
     display: 'flex',
     gap: '4em',
     justifyContent: 'center',
-    marginTop: '3em',
+    marginTop: '2em',
   },
   pointer: {
     cursor: 'pointer',
