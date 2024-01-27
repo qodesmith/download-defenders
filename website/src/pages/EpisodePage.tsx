@@ -83,7 +83,12 @@ export default function EpisodePage() {
     return () => {
       document.removeEventListener('keydown', listener)
     }
-  }, [])
+    /**
+     * We add `episodeNumber` as a dependency so that when we navigate from one
+     * episode to the next (i.e. the EpisodePage doesn't unmount) we re-trigger
+     * setting the audio playback rate to 1.5x.
+     */
+  }, [episodeNumber])
 
   if (!episode) return <div>No episode found</div>
   const episodeTitle = makeTitle(episode.title)
