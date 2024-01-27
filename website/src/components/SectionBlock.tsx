@@ -2,6 +2,7 @@ import ProgressIndicator from './ProgressIndicator'
 import {Link} from 'react-router-dom'
 import {useAtomValue} from 'jotai'
 import {
+  completedSectionEpisodesSelectorFamily,
   getSavedProgressPercentSelectorFamily,
   totalSectionTimeSelectorFamily,
 } from '../state/globalState'
@@ -48,6 +49,13 @@ const styles = stylex.create({
     padding: '0 0.5em 0.5em',
     bottom: '0',
   },
+  episodesComplete: {
+    position: 'absolute',
+    bottom: '.25em',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    lineHeight: 1,
+  },
 })
 
 type Props = {
@@ -63,6 +71,9 @@ export default function SectionBlock({num, section}: Props) {
     totalSectionTimeSelectorFamily(section.slug)
   )
   const boldCls = stylex.props(styles.bold).className
+  const completedEpisodes = useAtomValue(
+    completedSectionEpisodesSelectorFamily(section.slug)
+  )
 
   return (
     <section {...stylex.props(styles.sectionContainer)}>
@@ -78,6 +89,9 @@ export default function SectionBlock({num, section}: Props) {
       <div {...stylex.props(styles.number)}>{num}</div>
       <div {...stylex.props(styles.progressIndicatorContainer)}>
         <ProgressIndicator percent={progressPercent} />
+      </div>
+      <div {...stylex.props(styles.small, styles.episodesComplete)}>
+        {completedEpisodes}
       </div>
     </section>
   )

@@ -186,6 +186,25 @@ export const getSavedProgressPercentSelectorFamily = atomFamily<
   })
 })
 
+export const completedSectionEpisodesSelectorFamily = atomFamily<
+  string,
+  Atom<Promise<string>>
+>(sectionSlug => {
+  return atom(async get => {
+    const savedProgressData = get(savedProgressAtom)
+    const sectionData = await get(sectionSelectorFamily(sectionSlug))
+    const sectionLocalStorage = savedProgressData[sectionSlug] ?? {}
+    const completedEpisodes = Object.values(sectionLocalStorage).reduce(
+      (acc, bool) => {
+        return acc + Number(bool)
+      },
+      0
+    )
+
+    return `${completedEpisodes}/${sectionData?.episodes.length}`
+  })
+})
+
 /**
  * This write-only atom is used to reset the completion data for a single
  * section, given a section slug.
