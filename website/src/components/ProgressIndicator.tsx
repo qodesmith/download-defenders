@@ -31,6 +31,9 @@ const styles = stylex.create({
       width: `${percent}%`,
     },
   }),
+  num: {
+    lineHeight: 1,
+  },
 })
 
 type Props = {
@@ -41,7 +44,7 @@ export default function ProgressIndicator({percent}: Props) {
   return (
     <div {...stylex.props(styles.progressContainer)}>
       <div {...stylex.props(styles.bar(percent))} />
-      <div>{percent}%</div>
+      <div {...stylex.props(styles.num)}>{percent}%</div>
     </div>
   )
 }

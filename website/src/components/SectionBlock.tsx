@@ -14,9 +14,12 @@ const styles = stylex.create({
     width: '100%',
     border: '1px solid #333',
     borderRadius: '1em',
-    padding: '10px',
+    padding: '.5em',
     textAlign: 'center',
     position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
   },
   noMargin: {
     margin: 0,
@@ -43,17 +46,10 @@ const styles = stylex.create({
     opacity: '0.5',
   },
   progressIndicatorContainer: {
-    position: 'absolute',
     width: '100%',
-    left: '0',
-    padding: '0 0.5em 0.5em',
-    bottom: '0',
   },
   episodesComplete: {
-    position: 'absolute',
     bottom: '.25em',
-    left: '50%',
-    transform: 'translateX(-50%)',
     lineHeight: 1,
   },
 })
@@ -77,21 +73,27 @@ export default function SectionBlock({num, section}: Props) {
 
   return (
     <section {...stylex.props(styles.sectionContainer)}>
-      <h2 {...stylex.props(styles.noMargin)}>
-        <Link className={boldCls} to={section.slug}>
-          {section.title}
-        </Link>
-      </h2>
-      <div {...stylex.props(styles.italic)}>
-        {section.episodes.length} episodes{' '}
-        <span {...stylex.props(styles.small)}>({totalRuntime})</span>
+      <div>
+        <h2 {...stylex.props(styles.noMargin)}>
+          <Link className={boldCls} to={section.slug}>
+            {section.title}
+          </Link>
+        </h2>
+        <div {...stylex.props(styles.italic)}>
+          {section.episodes.length} episodes{' '}
+          <span {...stylex.props(styles.small)}>({totalRuntime})</span>
+        </div>
       </div>
+
       <div {...stylex.props(styles.number)}>{num}</div>
-      <div {...stylex.props(styles.progressIndicatorContainer)}>
-        <ProgressIndicator percent={progressPercent} />
-      </div>
-      <div {...stylex.props(styles.small, styles.episodesComplete)}>
-        {completedEpisodes}
+
+      <div>
+        <div {...stylex.props(styles.progressIndicatorContainer)}>
+          <ProgressIndicator percent={progressPercent} />
+        </div>
+        <div {...stylex.props(styles.small, styles.episodesComplete)}>
+          {completedEpisodes}
+        </div>
       </div>
     </section>
   )
