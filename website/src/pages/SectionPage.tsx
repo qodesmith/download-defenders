@@ -14,6 +14,7 @@ import EpisodeCheckbox from '../components/EpisodeCheckbox'
 import Heading from '../components/Heading'
 import {DefendersData} from '../../../websiteMiddlewares'
 import * as stylex from '@stylexjs/stylex'
+import {secondsToMinutes} from '../util/secondsToMinutes'
 
 const styles = stylex.create({
   ul: {
@@ -37,6 +38,12 @@ const styles = stylex.create({
   },
   notionLogoContainer: {
     paddingRight: '0.5em',
+  },
+  small: {
+    fontSize: '.7em',
+  },
+  lineThrough: {
+    textDecoration: 'line-through',
   },
 })
 
@@ -89,8 +96,8 @@ function ListItem({sectionSlug, episode, episodeNumber}: ListItemProps) {
       episodeSlug: episode.slug,
     })
   )
-  const textStyle = {textDecoration: isChecked ? 'line-through' : 'initial'}
   const checkboxId = useId()
+  const episodeTime = secondsToMinutes(episode.mp3Duration)
 
   return (
     <li key={episode.title} {...stylex.props(styles.li)}>
@@ -103,8 +110,11 @@ function ListItem({sectionSlug, episode, episodeNumber}: ListItemProps) {
       <div {...stylex.props(styles.notionLogoContainer)}>
         <NotionLogo size={20} url="" />
       </div>
-      <Link style={textStyle} to={episode.slug}>
-        {makeTitle(episode.title)}
+      <Link to={episode.slug}>
+        <span {...stylex.props(isChecked && styles.lineThrough)}>
+          {makeTitle(episode.title)}
+        </span>{' '}
+        <span {...stylex.props(styles.small)}>({episodeTime})</span>
       </Link>
     </li>
   )
