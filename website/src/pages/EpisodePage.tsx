@@ -1,17 +1,20 @@
-import {useEffect, useId, useRef} from 'react'
+import {useCallback, useEffect, useId, useRef} from 'react'
 import {useParams} from 'react-router-dom'
 import {
   episodeNumberSelectorFamily,
   episodeSelectorFamily,
   episodesCountSelectorFamily,
+  getEpisodeNotionLinkSelectorFamily,
+  updateEpisodeNotionLinkAtom,
 } from '../state/globalState'
 import {makeTitle} from '../util/makeTitle'
-import {useAtomValue} from 'jotai'
+import {useAtomValue, useSetAtom} from 'jotai'
 import EpisodeCheckbox from '../components/EpisodeCheckbox'
 import {CopyAudioTime} from '../components/CopyAudioTime'
 import * as stylex from '@stylexjs/stylex'
 import {PrevNext} from '../components/PrevNext'
 import {EpisodeNumberLinks} from '../components/EpisodeNumberLinks'
+import {TrashCan} from '../components/TrashCan'
 
 const styles = stylex.create({
   h1: {
@@ -41,6 +44,18 @@ const styles = stylex.create({
     gap: '2em',
     justifyContent: 'center',
     alignItems: 'flex-end',
+  },
+  inputContainer: {
+    paddingTop: '1em',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '1em',
+  },
+  input: {
+    fontFamily: 'inherit',
+    padding: '.3em .5em',
+    width: '60ch',
   },
 })
 
@@ -122,10 +137,61 @@ export default function EpisodePage() {
         </div>
         <CopyAudioTime audioRef={audioRef} episodeTitle={episodeTitle} />
       </div>
+
+      <div {...stylex.props(styles.inputContainer)}>
+        <NotionLink sectionSlug={sectionSlug} episodeSlug={episodeSlug} />
+      </div>
+
       {episodeNumber != null && sectionSlug && (
         <PrevNext episodeIdx={episodeNumber - 1} sectionSlug={sectionSlug} />
       )}
       <EpisodeNumberLinks />
     </>
+  )
+}
+
+type NotionLinkProps = {
+  sectionSlug?: string
+  episodeSlug?: string
+}
+
+function NotionLink({sectionSlug, episodeSlug}: NotionLinkProps) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const setNotionLink = useSetAtom(updateEpisodeNotionLinkAtom)
+  const notionLink = useAtomValue(
+    getEpisodeNotionLinkSelectorFamily({sectionSlug, episodeSlug})
+  )
+  const onSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+
+      const url = inputRef.current?.value
+      setNotionLink({sectionSlug, episodeSlug, url})
+    },
+    [sectionSlug, episodeSlug]
+  )
+  const onRemove = useCallback(() => {
+    setNotionLink({sectionSlug, episodeSlug})
+  }, [sectionSlug, episodeSlug])
+
+  if (notionLink) {
+    return (
+      <>
+        <a href={notionLink} target="_blank">
+          Link to Notion notes
+        </a>
+        <TrashCan onClick={onRemove} />
+      </>
+    )
+  }
+
+  return (
+    <form onSubmit={onSubmit}>
+      <input
+        {...stylex.props(styles.input)}
+        ref={inputRef}
+        placeholder="Paste a Notion url..."
+      />
+    </form>
   )
 }

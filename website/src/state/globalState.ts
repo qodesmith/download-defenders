@@ -98,6 +98,54 @@ export const episodesCountSelectorFamily = atomFamily<
   })
 })
 
+/**
+ * This atom stores links to Notion notes per episode.
+ * Example structure:
+ *  {
+ *    <section>.<episode>: "https://www.notion.so/qodesmith/..."
+ *  }
+ */
+const notionLinksAtom = atomWithStorage<Record<string, string | undefined>>(
+  'defendersNotionLinks',
+  {}
+)
+
+export const updateEpisodeNotionLinkAtom = atom<
+  null,
+  [{sectionSlug?: string; episodeSlug?: string; url?: string}],
+  void
+>(null, (get, set, {sectionSlug, episodeSlug, url}) => {
+  if (!sectionSlug || !episodeSlug) return
+
+  const notionLinksData = {...get(notionLinksAtom)}
+  const key = `${sectionSlug}.${episodeSlug}`
+
+  if (url) {
+    notionLinksData[key] = url
+  } else {
+    delete notionLinksData[key]
+  }
+
+  set(notionLinksAtom, notionLinksData)
+})
+
+export const getEpisodeNotionLinkSelectorFamily = atomFamily<
+  {
+    sectionSlug?: string
+    episodeSlug?: string
+  },
+  Atom<string | undefined>
+>(({sectionSlug, episodeSlug}) => {
+  return atom(get => {
+    if (!sectionSlug || !episodeSlug) return
+
+    const notionLinks = get(notionLinksAtom)
+    const key = `${sectionSlug}.${episodeSlug}`
+
+    return notionLinks[key]
+  })
+}, deepEqual)
+
 /*
   Example:
   {
@@ -112,7 +160,7 @@ type SavedProgressItem = Record<string, boolean>
  * This atom syncs completed episodes per section in localStorage. This will
  * populate the checkboxes next to each episode on the episode page.
  */
-export const savedProgressAtom = atomWithStorage<SavedProgressType>(
+const savedProgressAtom = atomWithStorage<SavedProgressType>(
   'defendersSavedProgress',
   {}
 )
