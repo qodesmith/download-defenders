@@ -13,6 +13,9 @@ const styles = stylex.create({
     margin: '0 auto',
     fontSize: '.8em',
   },
+  underline: {
+    textDecoration: 'underline',
+  },
 })
 
 export function EpisodeNumberLinks() {
@@ -26,9 +29,14 @@ export function EpisodeNumberLinks() {
       {episodes.map((episode, i) => {
         const num = i + 1
         const to = `/${sectionSlug}/${episode.slug}`
+        const isCurrentEpisode = episode.slug === episodeSlug
 
         return (
-          <Link to={to} key={num}>
+          <Link
+            to={to}
+            key={num}
+            {...stylex.props(isCurrentEpisode && styles.underline)}
+          >
             {num}
           </Link>
         )
