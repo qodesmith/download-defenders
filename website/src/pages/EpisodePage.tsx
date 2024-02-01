@@ -178,7 +178,7 @@ function NotionLink({sectionSlug, episodeSlug}: NotionLinkProps) {
     return (
       <>
         <a href={notionLink} target="_blank">
-          Link to Notion notes
+          {`${notionLink.slice(0, 21)}...${notionLink.slice(-15)}`}
         </a>
         <TrashCan onClick={onRemove} />
       </>
