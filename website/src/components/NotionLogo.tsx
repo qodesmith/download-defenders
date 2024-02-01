@@ -6,7 +6,7 @@ type LogoProps = {
 export default function NotionLogo({size, url}: LogoProps) {
   if (url) {
     return (
-      <a href={url}>
+      <a href={url} target="_blank">
         <NotionSvg size={size} hasUrl />
       </a>
     )

@@ -1,5 +1,6 @@
 import {useParams, Link} from 'react-router-dom'
 import {
+  getEpisodeNotionLinkSelectorFamily,
   getSavedProgressEpisodeSelectorFamily,
   sectionNumberSelectorFamily,
   sectionSelectorFamily,
@@ -98,6 +99,9 @@ function ListItem({sectionSlug, episode, episodeNumber}: ListItemProps) {
   )
   const checkboxId = useId()
   const episodeTime = secondsToMinutes(episode.mp3Duration)
+  const notionUrl = useAtomValue(
+    getEpisodeNotionLinkSelectorFamily({sectionSlug, episodeSlug: episode.slug})
+  )
 
   return (
     <li key={episode.title} {...stylex.props(styles.li)}>
@@ -108,7 +112,7 @@ function ListItem({sectionSlug, episode, episodeNumber}: ListItemProps) {
       />
       <div {...stylex.props(styles.episodeNumber)}>{episodeNumber}.</div>
       <div {...stylex.props(styles.notionLogoContainer)}>
-        <NotionLogo size={20} url="" />
+        <NotionLogo size={20} url={notionUrl} />
       </div>
       <Link to={episode.slug}>
         <span {...stylex.props(isChecked && styles.lineThrough)}>
