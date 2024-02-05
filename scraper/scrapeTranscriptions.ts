@@ -4,7 +4,7 @@ import {load as cheerioLoad} from 'cheerio'
 import type {FullSectionMetadata} from './genEpisodesMediaMetadata'
 import chalk from 'chalk'
 
-type TranscribedData = {
+export type TranscribedData = {
   section: string
   episodes: {
     transcriptionHtml: string
@@ -58,7 +58,7 @@ const promiseFxns = defenders3Data.reduce((acc, section, sectionIdx) => {
           }
 
           data.episodes.push({
-            transcriptionHtml,
+            transcriptionHtml: transcriptionHtml.split('<hr')[0],
             episodeTitle: episode.title,
             episodeUrl: episode.url,
           })
@@ -80,7 +80,8 @@ const transcriptionsStart = Date.now()
 await promiseFxns.reduce((promise, promiseFxn) => {
   return promise.then(promiseFxn)
 }, Promise.resolve())
-console.log(chalk.gray(`[${Date.now() - transcriptionsStart}ms] complete`))
+const seconds = ((Date.now() - transcriptionsStart) / 1000).toFixed(2)
+console.log(chalk.gray(`[${seconds}s] complete`))
 
 fs.writeJSONSync(
   path.resolve(__dirname, '../defenders3TranscriptionData.json'),
